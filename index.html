@@ -3,534 +3,718 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prixy — Le pouvoir d'achat collectif</title>
+<title>Prixy — Collective buying power</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1a1a1a;
-    --ink-soft: #4a4a4a;
-    --ink-muted: #8a8a8a;
-    --line: #ececec;
-    --line-soft: #f4f4f4;
-    --bg: #ffffff;
-    --accent: #7B1E3A;
-    --accent-soft: #f7eef1;
-    --max: 720px;
+    --bg: #07070a;
+    --bg-2: #0c0c11;
+    --ink: #ffffff;
+    --ink-soft: #b8b8c2;
+    --ink-mute: #5e5e6a;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.14);
+    --accent: #ff3b18;
+    --accent-soft: #ff5a3a;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
     background: var(--bg);
     color: var(--ink);
-    font-size: 16px;
-    line-height: 1.6;
+    font-family: 'Inter Tight', -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  html { scroll-behavior: smooth; }
+  body { cursor: none; }
+  @media (max-width: 900px) { body { cursor: auto; } }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; background: none; border: none; color: inherit; cursor: none; }
+  @media (max-width: 900px) { button { cursor: pointer; } }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* ───── CUSTOM CURSOR ───── */
+  .cursor-dot, .cursor-ring {
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    mix-blend-mode: difference;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #fff;
+  }
+  .cursor-ring {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid #fff;
+    transition: width 0.3s, height 0.3s, background 0.3s;
+  }
+  .cursor-ring.is-hover {
+    width: 70px; height: 70px;
+    background: rgba(255,255,255,0.05);
+  }
+  @media (max-width: 900px) { .cursor-dot, .cursor-ring { display: none; } }
+
+  /* ───── BACKGROUND CANVAS ───── */
+  #bgcanvas {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+  .noise {
+    position: fixed; inset: 0; z-index: 1;
+    pointer-events: none; opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  main { position: relative; z-index: 2; }
+
+  /* ───── SCROLL PROGRESS ───── */
+  .scroll-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--accent); z-index: 100; width: 0;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 16px var(--accent);
   }
 
-  .container {
-    max-width: var(--max);
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* Typography */
-  h1, h2, h3 {
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    color: var(--ink);
-  }
-  h1 { font-size: 36px; line-height: 1.15; }
-  h2 { font-size: 24px; line-height: 1.25; }
-  h3 { font-size: 17px; line-height: 1.35; }
-
-  p { color: var(--ink-soft); }
-
-  a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s;
-  }
-  a:hover { border-bottom-color: var(--accent); }
-  a:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px var(--accent);
-    border-radius: 2px;
-  }
-
-  /* Header */
-  header.site {
-    border-bottom: 1px solid var(--line);
-    padding: 20px 0;
-  }
-  header.site .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  /* ───── NAV ───── */
+  nav.top {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 22px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+    mix-blend-mode: difference;
   }
   .wordmark {
+    font-weight: 800;
     font-size: 18px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-    border-bottom: none;
-  }
-  .wordmark:hover { border-bottom: none; }
-  header.site nav a {
-    color: var(--ink-soft);
-    font-size: 14px;
-    margin-left: 24px;
-    border-bottom: none;
-  }
-  header.site nav a:hover { color: var(--ink); border-bottom: none; }
-
-  /* Sections */
-  section {
-    padding: 64px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  section:last-of-type { border-bottom: none; }
-
-  .eyebrow {
-    font-size: 13px;
-    color: var(--ink-muted);
-    margin-bottom: 12px;
-  }
-
-  /* Hero */
-  .hero { padding: 80px 0 72px; }
-  .hero p.lead {
-    margin-top: 20px;
-    font-size: 17px;
-    color: var(--ink-soft);
-  }
-
-  /* Buttons */
-  .btn-primary {
-    display: inline-block;
-    background: var(--accent);
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 8px;
     color: #fff;
-    border: none;
-    padding: 12px 22px;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 2px;
-    cursor: pointer;
-    margin-top: 28px;
-    transition: background 0.15s;
-    text-decoration: none;
   }
-  .btn-primary:hover { background: #5e152c; border-bottom: none; }
-  .btn-primary:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent);
+  .wordmark::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: dotPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+  }
+  .nav-links {
+    display: flex; gap: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #fff;
+  }
+  .nav-links a { opacity: 0.7; transition: opacity 0.3s; }
+  .nav-links a:hover { opacity: 1; }
+  @media (max-width: 700px) { .nav-links { display: none; } }
+
+  /* ───── COMMON ───── */
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+  .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .label::before {
+    content: ''; width: 8px; height: 8px;
+    background: var(--accent); border-radius: 50%;
   }
 
-  .btn-link {
-    background: none;
-    border: none;
+  /* ───── HERO ───── */
+  .hero {
+    min-height: 100vh;
+    padding: 140px 0 80px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative;
+  }
+  .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    text-align: right;
+  }
+  .hero-meta div { margin-bottom: 4px; }
+  .hero-meta strong { color: var(--ink); font-weight: 500; }
+
+  h1.display {
+    font-weight: 900;
+    font-size: clamp(56px, 12.5vw, 200px);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+    margin-top: 60px;
+  }
+  h1.display .word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+  h1.display .word > span {
+    display: inline-block;
+    transform: translateY(110%);
+    animation: wordUp 1.1s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes wordUp { to { transform: translateY(0); } }
+  h1.display em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
     color: var(--accent);
-    font-family: inherit;
-    font-size: 15px;
-    cursor: pointer;
-    padding: 0;
+    letter-spacing: -0.02em;
   }
 
-  /* Steps */
-  .steps { list-style: none; counter-reset: step; margin-top: 28px; }
-  .steps > li {
-    counter-increment: step;
-    padding: 24px 0;
-    border-top: 1px solid var(--line);
-    display: grid;
-    grid-template-columns: 40px 1fr;
-    gap: 16px;
-    align-items: baseline;
-  }
-  .steps > li:last-child { border-bottom: 1px solid var(--line); }
-  .steps > li::before {
-    content: counter(step, decimal-leading-zero);
-    color: var(--ink-muted);
-    font-variant-numeric: tabular-nums;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .steps h3 { margin-bottom: 6px; }
-  .steps p { font-size: 15px; }
-
-  /* Benefits — simple bullets */
-  .bullets { list-style: none; margin-top: 24px; }
-  .bullets li {
-    padding: 14px 0;
-    border-top: 1px solid var(--line);
-    display: grid;
-    grid-template-columns: 20px 1fr;
-    gap: 12px;
-    font-size: 15px;
-    color: var(--ink-soft);
-  }
-  .bullets li:last-child { border-bottom: 1px solid var(--line); }
-  .bullets li::before {
-    content: '—';
-    color: var(--ink-muted);
-  }
-  .bullets li strong {
-    color: var(--ink);
-    font-weight: 500;
-  }
-
-  /* Category picker */
-  .cats {
-    margin-top: 24px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .cat {
-    background: none;
-    border: 1px solid var(--line);
-    color: var(--ink-soft);
-    padding: 8px 14px;
-    font-family: inherit;
-    font-size: 14px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s, background 0.15s;
-  }
-  .cat:hover { color: var(--ink); border-color: var(--ink-muted); }
-  .cat.active {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .cat:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--accent);
-  }
-  .cats-note {
-    margin-top: 16px;
-    font-size: 13px;
-    color: var(--ink-muted);
-  }
-
-  /* Form */
-  form.signup {
-    margin-top: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label {
-    font-size: 13px;
-    color: var(--ink-soft);
-  }
-  .input {
-    background: #fff;
-    border: 1px solid var(--line);
-    padding: 11px 12px;
-    font-family: inherit;
-    font-size: 15px;
-    color: var(--ink);
-    border-radius: 2px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    outline: none;
-    width: 100%;
-  }
-  .input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-  .input::placeholder { color: var(--ink-muted); }
-
-  .row-2 {
+  .hero-bottom {
+    margin-top: 80px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 60px;
+    align-items: end;
+  }
+  .hero-bottom p {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 420px;
+  }
+  .hero-cta {
+    justify-self: end;
+    display: inline-flex; align-items: center; gap: 18px;
+    padding: 22px 36px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #fff;
+    transition: background 0.4s, color 0.4s, border-color 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateY(101%);
+    transition: transform 0.5s cubic-bezier(.7,0,.3,1);
+    z-index: -1;
+  }
+  .hero-cta:hover { border-color: var(--accent); }
+  .hero-cta:hover::before { transform: translateY(0); }
+  .hero-cta .arrow {
+    width: 14px; height: 14px;
+    transition: transform 0.4s;
+  }
+  .hero-cta:hover .arrow { transform: translate(4px, -4px); }
+  @media (max-width: 800px) {
+    .hero-bottom { grid-template-columns: 1fr; gap: 32px; }
+    .hero-cta { justify-self: start; padding: 18px 28px; }
   }
 
-  .check-row {
-    display: flex;
+  /* ───── MARQUEE ───── */
+  .marquee {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 28px 0;
+    overflow: hidden;
+    background: var(--bg);
+    position: relative;
+  }
+  .marquee-track {
+    display: flex; gap: 60px;
+    white-space: nowrap;
+    width: max-content;
+    animation: slide 38s linear infinite;
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 5vw, 64px);
+    line-height: 1;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .marquee-track .sep {
+    color: var(--accent);
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
+  @keyframes slide {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ───── BIG STATS / SECTIONS ───── */
+  section.block {
+    padding: 140px 0;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .sec-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
     align-items: flex-start;
-    gap: 10px;
-    font-size: 13px;
-    color: var(--ink-soft);
+  }
+  @media (max-width: 900px) { .sec-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  h2 {
+    font-weight: 800;
+    font-size: clamp(40px, 6.5vw, 96px);
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+  }
+  h2 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .num-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 100px;
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 700px) { .num-row { grid-template-columns: 1fr; } }
+  .num-cell {
+    padding: 32px 24px 32px 0;
+    border-right: 1px solid var(--line);
+  }
+  .num-cell:last-child { border-right: none; }
+  @media (max-width: 700px) {
+    .num-cell { border-right: none; border-bottom: 1px solid var(--line); }
+    .num-cell:last-child { border-bottom: none; }
+  }
+  .num-big {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 800;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .num-big sup {
+    font-size: 0.4em; vertical-align: super;
+    color: var(--accent); font-weight: 500;
+  }
+  .num-label {
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-mute);
     line-height: 1.5;
   }
-  .check-row input[type="checkbox"] {
-    margin-top: 3px;
-    accent-color: var(--accent);
-    width: 14px; height: 14px;
+
+  /* ───── STEPS ───── */
+  .steps { margin-top: 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    gap: 40px;
+    padding: 48px 0;
+    border-top: 1px solid var(--line);
+    align-items: flex-start;
+    transition: background 0.4s, padding 0.4s;
+  }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step:hover { padding-left: 24px; }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-mute);
+    padding-top: 8px;
+  }
+  .step h3 {
+    font-weight: 700;
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .step p {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  @media (max-width: 800px) {
+    .step { grid-template-columns: 1fr; gap: 12px; padding: 32px 0; }
+    .step:hover { padding-left: 0; }
   }
 
-  .form-note {
-    margin-top: 4px;
-    font-size: 13px;
-    color: var(--ink-muted);
+  /* ───── CTA / SIGNUP ───── */
+  .signup-block {
+    padding: 180px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    position: relative;
   }
-
-  .form-success {
-    margin-top: 24px;
-    padding: 16px;
-    border: 1px solid var(--accent);
-    background: var(--accent-soft);
-    color: var(--accent);
-    border-radius: 2px;
-    font-size: 14px;
-    display: none;
+  .signup-block h2 {
+    font-size: clamp(48px, 9vw, 140px);
+    max-width: 1100px;
+    margin: 0 auto 60px;
   }
-  .form-success.show { display: block; }
+  .signup {
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+  }
+  .field input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line-2);
+    padding: 12px 0;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 18px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .field input::placeholder { color: var(--ink-mute); }
+  .field input:focus { border-bottom-color: var(--accent); }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
 
-  /* FAQ */
-  .faq-list { margin-top: 24px; }
+  .submit-btn {
+    margin-top: 18px;
+    padding: 22px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-btn:hover { background: var(--accent-soft); transform: translateY(-2px); }
+  .check {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 13px; color: var(--ink-soft); line-height: 1.5;
+  }
+  .check input { accent-color: var(--accent); margin-top: 4px; }
+
+  /* ───── FAQ ───── */
+  .faq-section { padding: 140px 0; border-bottom: 1px solid var(--line); }
+  .faq {
+    margin-top: 60px;
+  }
   .faq-item {
     border-top: 1px solid var(--line);
+    transition: padding 0.3s;
   }
   .faq-item:last-child { border-bottom: 1px solid var(--line); }
   .faq-q {
     width: 100%;
-    background: none;
-    border: none;
-    padding: 18px 0;
-    font-family: inherit;
-    font-size: 16px;
-    color: var(--ink);
+    padding: 36px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 24px;
     text-align: left;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 500;
+    font-size: clamp(20px, 2.5vw, 32px);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    transition: color 0.3s;
   }
-  .faq-q:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--accent-soft);
-    border-radius: 2px;
-  }
-  .chev {
-    width: 12px; height: 12px;
-    transition: transform 0.2s;
-    color: var(--ink-muted);
+  .faq-q:hover { color: var(--accent); }
+  .faq-icon {
     flex-shrink: 0;
+    width: 40px; height: 40px;
+    border: 1px solid var(--line-2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, border-color 0.3s, transform 0.4s;
   }
-  .faq-item.open .chev { transform: rotate(180deg); color: var(--accent); }
+  .faq-item.open .faq-icon {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: rotate(45deg);
+  }
   .faq-a {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.25s ease, padding 0.25s ease;
+    max-height: 0; overflow: hidden;
     color: var(--ink-soft);
-    font-size: 15px;
+    font-size: 16px;
+    line-height: 1.6;
+    transition: max-height 0.4s cubic-bezier(.25,.8,.25,1), padding 0.3s;
   }
   .faq-item.open .faq-a {
-    max-height: 400px;
-    padding: 0 0 20px;
+    max-height: 300px;
+    padding: 0 0 36px;
   }
 
-  /* Footer */
+  /* ───── FOOTER ───── */
   footer.site {
-    padding: 40px 0 56px;
-    color: var(--ink-muted);
-    font-size: 13px;
+    padding: 120px 0 40px;
+    position: relative;
   }
-  footer.site .container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+  .foot-mark {
+    font-weight: 900;
+    font-size: clamp(80px, 22vw, 320px);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    color: var(--ink);
+    margin-bottom: 60px;
   }
-  footer.site a {
-    color: var(--ink-muted);
-    border-bottom: none;
+  .foot-mark span {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
   }
-  footer.site a:hover { color: var(--ink); }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    border-top: 1px solid var(--line);
+    padding-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-mute);
+  }
+  .foot-grid div strong { color: var(--ink); font-weight: 500; display: block; margin-bottom: 8px; }
+  .foot-grid a { display: block; padding: 4px 0; transition: color 0.3s; }
+  .foot-grid a:hover { color: var(--ink); }
+  @media (max-width: 700px) { .foot-grid { grid-template-columns: 1fr; gap: 24px; } }
+  .copy {
+    margin-top: 40px;
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-mute);
+  }
 
-  /* Mobile */
-  @media (max-width: 600px) {
-    h1 { font-size: 30px; }
-    .hero { padding: 56px 0 48px; }
-    section { padding: 48px 0; }
-    .row-2 { grid-template-columns: 1fr; }
-    header.site nav a { margin-left: 16px; font-size: 13px; }
-  }
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s cubic-bezier(.25,.8,.25,1), transform 1s cubic-bezier(.25,.8,.25,1); }
+  .reveal.in { opacity: 1; transform: none; }
 </style>
 </head>
 <body>
 
-<header class="site">
-  <div class="container">
-    <a href="#" class="wordmark">prixy</a>
-    <nav>
-      <a href="#fonctionnement">Fonctionnement</a>
-      <a href="#inscription">S'inscrire</a>
-    </nav>
+<canvas id="bgcanvas"></canvas>
+<div class="noise"></div>
+<div class="scroll-bar" id="scroll-bar"></div>
+
+<div class="cursor-ring" id="cursor-ring"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<nav class="top">
+  <a href="#" class="wordmark">PRIXY</a>
+  <div class="nav-links">
+    <a href="#fonctionnement" data-cursor>Fonctionnement</a>
+    <a href="#chiffres" data-cursor>Pourquoi</a>
+    <a href="#inscription" data-cursor>S'inscrire</a>
+    <a href="#faq" data-cursor>FAQ</a>
   </div>
-</header>
+</nav>
+
+<main>
 
 <section class="hero">
   <div class="container">
-    <p class="eyebrow">Lancement prévu en mai 2026</p>
-    <h1>Le pouvoir d'achat, c'est une affaire d'équipe.</h1>
-    <p class="lead">Une commande groupée s'ouvre. On attend d'être assez nombreux. Le fabricant livre. Les mêmes produits du quotidien qu'en grande surface, achetés directement à l'usine.</p>
-    <a href="#inscription" class="btn-primary">Je veux être prévenu·e</a>
-  </div>
-</section>
-
-<section id="fonctionnement">
-  <div class="container">
-    <p class="eyebrow">Fonctionnement</p>
-    <h2>Trois étapes, aucun intermédiaire.</h2>
-    <ol class="steps">
-      <li>
-        <div>
-          <h3>Une commande groupée s'ouvre</h3>
-          <p>Un produit, un fabricant français, une fenêtre de quelques jours. Tu réserves ta part et tu paies.</p>
-        </div>
-      </li>
-      <li>
-        <div>
-          <h3>On attend le volume cible</h3>
-          <p>Si on est assez nombreux, la commande part. Sinon, tu es remboursé·e à l'euro près, sans frais ni délai.</p>
-        </div>
-      </li>
-      <li>
-        <div>
-          <h3>Livraison directe</h3>
-          <p>Un seul camion, du fabricant au point relais ou à ton adresse. Pas de stock intermédiaire.</p>
-        </div>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<section>
-  <div class="container">
-    <p class="eyebrow">Pourquoi c'est moins cher</p>
-    <h2>Chaque intermédiaire ajoute sa marge.</h2>
-    <p style="margin-top:16px;">Entre l'usine et le rayon, le produit passe par un grossiste, un distributeur, l'enseigne. Chacun prend sa part. C'est mécanique. En achetant en groupe directement au fabricant, on supprime ces étapes.</p>
-    <ul class="bullets">
-      <li><span><strong>Fabricant français.</strong> Tu paies le coût de production plus la marge de l'usine, point.</span></li>
-      <li><span><strong>Commission transparente.</strong> Prixy retient 4 % sur le total de la commande. C'est tout.</span></li>
-      <li><span><strong>Aucun stock.</strong> On ne possède rien, on coordonne. Pas d'entrepôt à amortir.</span></li>
-      <li><span><strong>Remboursement garanti.</strong> Si la commande n'atteint pas son seuil, tu récupères ton argent.</span></li>
-    </ul>
-  </div>
-</section>
-
-<section>
-  <div class="container">
-    <p class="eyebrow">Catégories au lancement</p>
-    <h2>Qu'est-ce qui t'intéresse en premier ?</h2>
-    <p style="margin-top:16px;">On commence par les produits du quotidien. Sélectionne les catégories qui te parlent, ça nous aide à prioriser.</p>
-    <div class="cats" id="cats">
-      <button type="button" class="cat">Entretien maison</button>
-      <button type="button" class="cat">Lessive et linge</button>
-      <button type="button" class="cat">Hygiène et soin</button>
-      <button type="button" class="cat">Papier et essuie-tout</button>
-      <button type="button" class="cat">Épicerie sèche</button>
-      <button type="button" class="cat">Boissons</button>
-      <button type="button" class="cat">Bébé</button>
-      <button type="button" class="cat">Animaux</button>
+    <div class="hero-top">
+      <div class="label">PRIXY · LANCEMENT MAI 2026</div>
+      <div class="hero-meta">
+        <div><strong>V01.0</strong> — INDEX</div>
+        <div>FR — ÎLE-DE-FRANCE</div>
+        <div id="clock">— : — : —</div>
+      </div>
     </div>
-    <p class="cats-note">Tu peux en choisir plusieurs. On garde ton choix avec ton inscription juste en dessous.</p>
+    <h1 class="display" id="hero-title">
+      Le pouvoir<br>
+      d'achat,<br>
+      <em>collectif.</em>
+    </h1>
+    <div class="hero-bottom">
+      <p class="reveal">Une commande s'ouvre. On attend d'être assez nombreux. Le fabricant livre directement. Les mêmes produits qu'en grande surface, sans les intermédiaires.</p>
+      <a href="#inscription" class="hero-cta" data-cursor>
+        Rejoindre
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
-<section id="inscription">
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track" id="marquee">
+    <span>Liquide vaisselle</span><span class="sep">×</span>
+    <span>Lessive</span><span class="sep">×</span>
+    <span>Nettoyant multi-surfaces</span><span class="sep">×</span>
+    <span>Papier toilette</span><span class="sep">×</span>
+    <span>Savon</span><span class="sep">×</span>
+    <span>Adoucissant</span><span class="sep">×</span>
+    <span>Pastilles lave-vaisselle</span><span class="sep">×</span>
+    <span>Spray vitres</span><span class="sep">×</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="block" id="chiffres">
   <div class="container">
-    <p class="eyebrow">Liste d'attente</p>
-    <h2>Préviens-moi au lancement.</h2>
-    <p style="margin-top:16px;">Aucun spam. Un email quand la première commande groupée s'ouvre dans ta zone. Désinscription en un clic.</p>
-    <form class="signup" id="signup">
+    <div class="sec-grid">
+      <div class="label reveal">02 · POURQUOI</div>
+      <div>
+        <h2 class="reveal">Chaque intermédiaire<br>ajoute <em>sa marge.</em></h2>
+        <div class="num-row">
+          <div class="num-cell reveal">
+            <div class="num-big" data-count="4">0<sup>%</sup></div>
+            <div class="num-label">Commission Prixy · transparente · sur le total</div>
+          </div>
+          <div class="num-cell reveal">
+            <div class="num-big" data-count="3">0</div>
+            <div class="num-label">Intermédiaires supprimés entre l'usine et toi</div>
+          </div>
+          <div class="num-cell reveal">
+            <div class="num-big" data-count="1">0</div>
+            <div class="num-label">Camion mutualisé · livraison directe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="block" id="fonctionnement">
+  <div class="container">
+    <div class="sec-grid">
+      <div class="label reveal">03 · FONCTIONNEMENT</div>
+      <div>
+        <h2 class="reveal">Trois étapes,<br><em>zéro friction.</em></h2>
+        <div class="steps">
+          <div class="step reveal" data-cursor>
+            <div class="step-num">01</div>
+            <h3>La commande s'ouvre</h3>
+            <p>Un produit, un fabricant français, une fenêtre de quelques jours. Tu réserves ta part et tu paies.</p>
+          </div>
+          <div class="step reveal" data-cursor>
+            <div class="step-num">02</div>
+            <h3>Le groupe se forme</h3>
+            <p>Si on atteint le volume cible, la commande part chez le fabricant. Sinon, tu es remboursé·e intégralement.</p>
+          </div>
+          <div class="step reveal" data-cursor>
+            <div class="step-num">03</div>
+            <h3>Livraison directe</h3>
+            <p>Un seul camion, de l'usine au point relais. Pas de stock, pas d'entrepôt, pas de marge cachée.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNUP -->
+<section class="signup-block" id="inscription">
+  <div class="container">
+    <div class="label reveal" style="justify-content: center; display: flex;">04 · LISTE D'ATTENTE</div>
+    <h2 class="reveal" style="margin-top: 32px;">Préviens-moi<br>au <em>lancement.</em></h2>
+    <form class="signup reveal" id="form">
       <div class="row-2">
         <div class="field">
-          <label for="prenom">Prénom</label>
-          <input class="input" type="text" id="prenom" name="prenom" placeholder="Camille" required>
+          <label>Prénom</label>
+          <input type="text" placeholder="Camille" required>
         </div>
         <div class="field">
-          <label for="cp">Code postal</label>
-          <input class="input" type="text" id="cp" name="cp" placeholder="77700" required inputmode="numeric">
+          <label>Code postal</label>
+          <input type="text" placeholder="77700" required>
         </div>
       </div>
       <div class="field">
-        <label for="email">Email</label>
-        <input class="input" type="email" id="email" name="email" placeholder="toi@exemple.fr" required>
+        <label>Email</label>
+        <input type="email" placeholder="toi@exemple.fr" required>
       </div>
-      <label class="check-row">
+      <label class="check">
         <input type="checkbox" required>
-        <span>J'accepte de recevoir un email quand Prixy se lance dans ma zone. Je peux me désinscrire à tout moment.</span>
+        <span>J'accepte de recevoir un email quand Prixy se lance dans ma zone. Désinscription en un clic.</span>
       </label>
-      <button type="submit" class="btn-primary" style="margin-top:8px;">M'inscrire à la liste</button>
-      <p class="form-note">Données stockées en France. Conforme RGPD.</p>
+      <button type="submit" class="submit-btn" data-cursor>M'inscrire à la liste →</button>
     </form>
-    <div class="form-success" id="form-success">Merci. Tu es sur la liste. On t'écrit dès qu'une commande s'ouvre près de chez toi.</div>
   </div>
 </section>
 
-<section>
+<!-- FAQ -->
+<section class="faq-section" id="faq">
   <div class="container">
-    <p class="eyebrow">Questions fréquentes</p>
-    <h2>Ce qu'on nous demande le plus.</h2>
-    <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q" type="button">
-          <span>C'est légal ?</span>
-          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="faq-a">
-          <p>Oui. Prixy est une société française qui coordonne des achats groupés. C'est un mécanisme reconnu par le Code de la consommation. Les fabricants restent libres de leur tarif, tu restes libre de réserver ou non.</p>
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" type="button">
-          <span>Pourquoi les fabricants accepteraient ?</span>
-          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="faq-a">
-          <p>Parce qu'on leur garantit du volume sans coût d'acquisition. Pour un fabricant régional, expédier un gros lot à un seul point de livraison est plus rentable que d'écouler par plusieurs grossistes.</p>
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" type="button">
-          <span>Quels produits, quelle qualité ?</span>
-          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="faq-a">
-          <p>Des produits du quotidien fabriqués en France, avec compositions traçables. La liste des fabricants partenaires sera publique au lancement.</p>
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" type="button">
-          <span>Comment je suis livré·e ?</span>
-          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="faq-a">
-          <p>En point relais ou à domicile. Le transport est mutualisé sur la même tournée pour toute la zone, c'est ce qui permet de garder le coût bas.</p>
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" type="button">
-          <span>Et si la commande n'atteint pas le seuil ?</span>
-          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="faq-a">
-          <p>Tu es remboursé·e intégralement sous quelques jours ouvrés. Aucun frais retenu, aucune pénalité. Tu peux retenter au tour suivant.</p>
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" type="button">
-          <span>Quand est-ce que ça démarre ?</span>
-          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="faq-a">
-          <p>Première commande pilote prévue en mai 2026 en Île-de-France. Extension nationale ensuite, en fonction de la demande.</p>
+    <div class="sec-grid">
+      <div class="label reveal">05 · QUESTIONS</div>
+      <div>
+        <h2 class="reveal">Ce qu'on nous<br><em>demande.</em></h2>
+        <div class="faq">
+          <div class="faq-item">
+            <button class="faq-q" data-cursor>
+              <span>C'est légal ?</span>
+              <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            </button>
+            <div class="faq-a"><p>Oui. Prixy est une société française qui coordonne des achats groupés, un mécanisme reconnu par le Code de la consommation. Tu restes libre de réserver ou non, et chaque commande est encadrée.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-cursor>
+              <span>Pourquoi les fabricants acceptent ?</span>
+              <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            </button>
+            <div class="faq-a"><p>Parce qu'on leur garantit un volume sans coût d'acquisition. Pour un fabricant régional, expédier un gros lot à un seul point est plus rentable que d'écouler par plusieurs grossistes.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-cursor>
+              <span>Quelle qualité ?</span>
+              <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            </button>
+            <div class="faq-a"><p>Des produits du quotidien fabriqués en France, avec compositions traçables. La liste complète des fabricants partenaires sera publique au lancement.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-cursor>
+              <span>Et si la commande n'atteint pas le seuil ?</span>
+              <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            </button>
+            <div class="faq-a"><p>Tu es remboursé·e intégralement sous quelques jours ouvrés. Aucun frais retenu, aucune pénalité.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-cursor>
+              <span>Quand ?</span>
+              <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            </button>
+            <div class="faq-a"><p>Première commande pilote en mai 2026 en Île-de-France. Extension nationale ensuite, selon la demande.</p></div>
+          </div>
         </div>
       </div>
     </div>
@@ -539,37 +723,197 @@
 
 <footer class="site">
   <div class="container">
-    <span>© 2026 Prixy</span>
-    <span>Fait en France 🇫🇷</span>
+    <div class="foot-mark reveal">PRI<span>X</span>Y</div>
+    <div class="foot-grid">
+      <div>
+        <strong>Index</strong>
+        <a href="#fonctionnement" data-cursor>Fonctionnement</a>
+        <a href="#chiffres" data-cursor>Chiffres</a>
+        <a href="#inscription" data-cursor>S'inscrire</a>
+        <a href="#faq" data-cursor>FAQ</a>
+      </div>
+      <div>
+        <strong>Société</strong>
+        <a href="#" data-cursor>À propos</a>
+        <a href="#" data-cursor>Fabricants</a>
+        <a href="#" data-cursor>RGPD</a>
+        <a href="mailto:hello@prixy.fr" data-cursor>hello@prixy.fr</a>
+      </div>
+      <div>
+        <strong>Réseaux</strong>
+        <a href="#" data-cursor>Instagram</a>
+        <a href="#" data-cursor>LinkedIn</a>
+        <a href="#" data-cursor>X / Twitter</a>
+      </div>
+    </div>
+    <div class="copy">
+      <span>© 2026 PRIXY · TOUS DROITS RÉSERVÉS</span>
+      <span>BUILT IN FRANCE</span>
+    </div>
   </div>
 </footer>
 
+</main>
+
 <script>
-  // FAQ accordion
-  document.querySelectorAll('.faq-item').forEach(item => {
-    const q = item.querySelector('.faq-q');
-    q.addEventListener('click', () => {
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
+  /* ── CUSTOM CURSOR ── */
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  if (window.innerWidth >= 900) {
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
     });
-  });
-
-  // Category toggles
-  document.querySelectorAll('.cat').forEach(c => {
-    c.addEventListener('click', () => c.classList.toggle('active'));
-  });
-
-  // Form submit
-  const form = document.getElementById('signup');
-  const success = document.getElementById('form-success');
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      form.style.display = 'none';
-      success.classList.add('show');
+    const tick = () => {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      requestAnimationFrame(tick);
+    };
+    tick();
+    document.querySelectorAll('[data-cursor], button, input, a').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('is-hover'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('is-hover'));
     });
   }
+
+  /* ── BACKGROUND CANVAS — animated blobs ── */
+  const canvas = document.getElementById('bgcanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => {
+    W = canvas.width = window.innerWidth * devicePixelRatio;
+    H = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  const blobs = [
+    { x: 0.2, y: 0.3, r: 0.55, hue: '255, 59, 24',  v: 0.4 },
+    { x: 0.8, y: 0.7, r: 0.45, hue: '120, 30, 58',  v: 0.5 },
+    { x: 0.5, y: 0.9, r: 0.50, hue: '60, 20, 80',   v: 0.3 },
+  ];
+  let mouseX = 0.5, mouseY = 0.5;
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX / window.innerWidth;
+    mouseY = e.clientY / window.innerHeight;
+  });
+
+  let t = 0;
+  const draw = () => {
+    t += 0.005;
+    ctx.clearRect(0, 0, W, H);
+    blobs.forEach((b, i) => {
+      const offX = Math.sin(t * b.v + i) * 0.08 + (mouseX - 0.5) * 0.05;
+      const offY = Math.cos(t * b.v + i * 1.3) * 0.08 + (mouseY - 0.5) * 0.05;
+      const cx = (b.x + offX) * W;
+      const cy = (b.y + offY) * H;
+      const rad = b.r * Math.max(W, H);
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+      grad.addColorStop(0, `rgba(${b.hue}, 0.55)`);
+      grad.addColorStop(0.5, `rgba(${b.hue}, 0.12)`);
+      grad.addColorStop(1, `rgba(${b.hue}, 0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
+
+  /* ── HERO TITLE SPLIT INTO WORDS ── */
+  const title = document.getElementById('hero-title');
+  if (title) {
+    const html = title.innerHTML;
+    const wrap = (str, delay) => str.split(' ').map((w, i) => {
+      return `<span class="word"><span style="animation-delay:${delay + i * 0.08}s">${w}</span></span>`;
+    }).join(' ');
+    // walk: replace text nodes and em contents
+    const walker = (node, delayRef) => {
+      const children = [...node.childNodes];
+      children.forEach(c => {
+        if (c.nodeType === Node.TEXT_NODE) {
+          const txt = c.textContent.trim();
+          if (txt) {
+            const span = document.createElement('span');
+            span.innerHTML = wrap(txt, delayRef.d);
+            delayRef.d += txt.split(' ').length * 0.08;
+            node.replaceChild(span, c);
+          }
+        } else if (c.nodeName === 'EM') {
+          const inner = c.textContent.trim();
+          c.innerHTML = wrap(inner, delayRef.d);
+          delayRef.d += inner.split(' ').length * 0.08;
+        }
+      });
+    };
+    walker(title, { d: 0.2 });
+  }
+
+  /* ── REVEAL ON SCROLL ── */
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ── NUMBER COUNTERS ── */
+  const numIO = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = parseInt(el.dataset.count, 10);
+      const sup = el.querySelector('sup');
+      const supHTML = sup ? sup.outerHTML : '';
+      const start = performance.now();
+      const dur = 1400;
+      const tick = (now) => {
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.innerHTML = Math.floor(eased * target) + supHTML;
+        if (p < 1) requestAnimationFrame(tick);
+        else el.innerHTML = target + supHTML;
+      };
+      requestAnimationFrame(tick);
+      numIO.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('[data-count]').forEach(el => numIO.observe(el));
+
+  /* ── FAQ ── */
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const was = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!was) item.classList.add('open');
+    });
+  });
+
+  /* ── SCROLL BAR ── */
+  const sb = document.getElementById('scroll-bar');
+  document.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    sb.style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+  }, { passive: true });
+
+  /* ── FORM ── */
+  document.getElementById('form').addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('.submit-btn');
+    btn.innerHTML = '✓ Inscrit · à très vite';
+    btn.style.background = '#1f8d3a';
+  });
+
+  /* ── CLOCK ── */
+  const clock = document.getElementById('clock');
+  const updateClock = () => {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    clock.textContent = `PARIS · ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
+  updateClock();
+  setInterval(updateClock, 1000);
 </script>
 
 </body>
