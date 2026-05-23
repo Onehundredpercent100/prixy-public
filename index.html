@@ -476,12 +476,227 @@
     color: var(--ink-mute);
   }
 
-  /* ───── REVEAL ───── */
-  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(.25,.8,.25,1), transform 0.9s cubic-bezier(.25,.8,.25,1); }
-  .reveal.in { opacity: 1; transform: none; }
+  /* ════════════════════════════════════════════════════════════
+     MOTION TOKENS — 4 easings, 4 durées, point.
+     Toute animation pioche ici. Aucune cubic-bezier hors tokens.
+     ════════════════════════════════════════════════════════════ */
+  :root {
+    --ease-out-expo:     cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart:    cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-back-soft:    cubic-bezier(0.34, 1.26, 0.64, 1);
+    --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+    --dur-micro:  150ms;
+    --dur-short:  280ms;
+    --dur-medium: 600ms;
+    --dur-long:  1100ms;
+  }
+
+  /* prefers-reduced-motion : tout passe à 0.01 ms */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: .01ms !important;
+      animation-delay: 0 !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+      transition-delay: 0 !important;
+      scroll-behavior: auto !important;
+    }
+    .reveal, .reveal-stagger > *, .cascade > *,
+    .headline-word, .headline-line, .block { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* SCROLL PROGRESS BAR (gradient accent fin, top) */
+  .scroll-progress{
+    position: fixed; top: 0; left: 0; right: 0; height: 2px;
+    background: transparent; z-index: 60; pointer-events: none;
+  }
+  .scroll-progress::after{
+    content: ""; display: block; height: 100%;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--accent), #b13a5c);
+    transition: width 80ms linear;
+  }
+
+  /* NAV scrolled state */
+  nav.top { transition: background var(--dur-short) var(--ease-out-quart), border-color var(--dur-short) var(--ease-out-quart); }
+  nav.top.scrolled { background: rgba(255,255,255,0.96); }
+
+  /* REVEAL — atome de base, simple opacity + translateY */
+  .reveal{
+    opacity: 0; transform: translateY(16px);
+    transition:
+      opacity var(--dur-medium) var(--ease-out-expo),
+      transform var(--dur-medium) var(--ease-out-expo);
+  }
+  .reveal.in{ opacity: 1; transform: none; }
+  .reveal-soft{ transform: translateY(8px); }
+  .reveal-lift{ transform: translateY(28px); }
+
+  /* CASCADE / REVEAL-STAGGER — chaque enfant reçoit --i posé par le JS */
+  .reveal-stagger > *,
+  .cascade > *{
+    opacity: 0; transform: translateY(20px);
+    transition:
+      opacity var(--dur-medium) var(--ease-out-expo),
+      transform var(--dur-medium) var(--ease-out-expo);
+    transition-delay: calc(var(--i, 0) * 80ms);
+  }
+  .reveal-stagger.in > *,
+  .cascade.in > *{ opacity: 1; transform: none; }
+
+  /* SECTION WHOOSH — la section entière fade-up à l'arrivée */
+  section.block{
+    opacity: 0; transform: translateY(24px);
+    transition:
+      opacity var(--dur-long) var(--ease-out-expo),
+      transform var(--dur-long) var(--ease-out-expo);
+  }
+  section.block.in-view{ opacity: 1; transform: none; }
+
+  /* HEADLINE — mot-par-mot, slide depuis sous la ligne (mask overflow) */
+  .headline-mask{
+    display: inline-block;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+    overflow: hidden;
+    vertical-align: top;
+  }
+  .headline-word{
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(110%);
+    transition:
+      opacity var(--dur-medium) var(--ease-out-expo),
+      transform var(--dur-long) var(--ease-out-expo);
+    transition-delay: calc(var(--w, 0) * 70ms + 120ms);
+    white-space: pre;
+  }
+  .headline-mask.in .headline-word{ opacity: 1; transform: none; }
+
+  /* HERO META — slide depuis la gauche/droite avec un léger décalage scroll */
+  .hero-meta > *{
+    opacity: 0; transform: translateY(8px);
+    transition:
+      opacity var(--dur-medium) var(--ease-out-expo),
+      transform var(--dur-long) var(--ease-out-expo);
+  }
+  .hero-meta.in > *{ opacity: 1; transform: none; }
+  .hero-meta.in > *:nth-child(1){ transition-delay: 60ms; }
+  .hero-meta.in > *:nth-child(2){ transition-delay: 160ms; }
+  .hero-meta.in > *:nth-child(3){ transition-delay: 260ms; }
+
+  /* HERO FOOT — paragraphe + CTA en cascade après le titre */
+  .hero-foot > *{
+    opacity: 0; transform: translateY(14px);
+    transition:
+      opacity var(--dur-medium) var(--ease-out-expo),
+      transform var(--dur-medium) var(--ease-out-expo);
+  }
+  .hero-foot.in > *{ opacity: 1; transform: none; }
+  .hero-foot.in > *:nth-child(1){ transition-delay: 700ms; }
+  .hero-foot.in > *:nth-child(2){ transition-delay: 820ms; }
+
+  /* MAGNETIC CTA — léger lift au hover, tracking souris via JS */
+  .magnetic{
+    display: inline-block;
+    transition: transform var(--dur-short) var(--ease-out-expo);
+    will-change: transform;
+  }
+  .hero-cta .magnetic-inner,
+  .submit .magnetic-inner,
+  .nav-cta .magnetic-inner{
+    display: inline-flex; align-items: center; gap: 14px;
+    transition: transform var(--dur-short) var(--ease-out-expo);
+    pointer-events: none;
+  }
+
+  /* CTA shimmer (one-shot à l'apparition) */
+  .hero-cta{ position: relative; overflow: hidden; }
+  .hero-cta::after{
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(120deg,
+      transparent 30%,
+      rgba(255,255,255,0.30) 50%,
+      transparent 70%);
+    transform: translateX(-110%);
+    pointer-events: none;
+  }
+  .hero-foot.in .hero-cta::after{
+    animation: ctaShimmer 1100ms var(--ease-out-quart) 1100ms 1 both;
+  }
+  .hero-cta:hover::after{
+    animation: ctaShimmer 700ms var(--ease-out-quart) 1 both;
+  }
+  @keyframes ctaShimmer{
+    from{ transform: translateX(-110%); }
+    to  { transform: translateX(110%); }
+  }
+
+  /* CASE — légère mise en place au hover (déjà), et stagger via cascade */
+  .case .case-name{
+    transition: transform var(--dur-short) var(--ease-out-expo);
+  }
+  .case:hover .case-name{ transform: translateY(-2px); }
+
+  /* PHILO QUOTE — reveal par "lignes" via mask (le JS wrappe les mots) */
+  .philo-quote .headline-word{
+    transition-delay: calc(var(--w, 0) * 35ms + 80ms);
+  }
+
+  /* NUMS — chaque cellule entre avec un léger scale + stagger */
+  .nums.cascade > *{
+    transform: translateY(20px) scale(0.985);
+    transition:
+      opacity var(--dur-medium) var(--ease-out-expo),
+      transform var(--dur-medium) var(--ease-out-expo);
+  }
+  .nums.cascade.in > *{ transform: none; }
+  .num-big{
+    transition: color var(--dur-short) var(--ease-out-quart);
+  }
+
+  /* FAQ icône qui pivote (existant, refait avec tokens) */
+  .faq-icon{ transition: background var(--dur-short) var(--ease-out-quart), border-color var(--dur-short) var(--ease-out-quart), transform var(--dur-short) var(--ease-out-expo); }
+
+  /* STEP — connecteur vertical scrollé (lecture progressive) */
+  .steps{ position: relative; }
+  .steps-progress{
+    position: absolute; left: 80px;
+    top: 0; bottom: 0; width: 2px;
+    background: var(--line);
+    transform-origin: top;
+    pointer-events: none;
+  }
+  .steps-progress::after{
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, var(--accent), #b13a5c);
+    transform-origin: top;
+    transform: scaleY(var(--steps-p, 0));
+    transition: transform 80ms linear;
+  }
+  @media (max-width: 800px){ .steps-progress{ display: none; } }
+
+  /* FOOTER wordmark — lettres respirent au hover (existant) */
+  .foot-mark .wm-letter{
+    display: inline-block;
+    transition: transform var(--dur-short) var(--ease-back-soft);
+    transition-delay: calc(var(--l, 0) * 35ms);
+  }
+  .foot-mark:hover .wm-letter{
+    transform: translateY(var(--wm-y, -3px));
+  }
+
+  /* PARALLAX léger sur le hero-meta — set via JS (--py) */
+  .hero-meta{
+    transform: translateY(var(--py, 0px));
+    transition: transform 0.1s linear;
+    will-change: transform;
+  }
 </style>
 </head>
 <body>
+
+<div class="scroll-progress" id="scroll-progress"></div>
 
 <nav class="top">
   <a href="#" class="wordmark">PRIXY</a>
@@ -495,37 +710,39 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-meta">
+  <div class="hero-meta" data-fire="hero-meta">
     <div><span>Prixy</span> — Achat groupé direct usine</div>
     <div>Lancement <span>mai 2026</span> — Île-de-France</div>
     <div id="clock">— : — : —</div>
   </div>
 
   <h1 class="display" id="hero-title">
-    Acheter ensemble, payer moins<span class="accent-dot"></span>
+    <span class="headline-mask"><span class="headline-line" data-headline>Acheter ensemble, payer moins</span></span><span class="accent-dot"></span>
   </h1>
 
-  <div class="hero-foot">
+  <div class="hero-foot" data-fire="hero-foot">
     <p>Une commande s'ouvre, on attend d'être assez nombreux, le fabricant livre. Les mêmes produits du quotidien qu'en grande surface, sans les intermédiaires.</p>
-    <a href="#inscription" class="hero-cta">
-      Rejoindre la liste
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    <a href="#inscription" class="hero-cta magnetic">
+      <span class="magnetic-inner">
+        Rejoindre la liste
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </span>
     </a>
   </div>
 </section>
 
 <!-- COMMANDES (work grid) -->
-<section class="sec" id="commandes">
+<section class="sec block" id="commandes">
   <div class="sec-head">
     <div>
       <div class="sec-eyebrow reveal">Au lancement</div>
-      <h2 class="reveal">Commandes prévues.</h2>
+      <h2 class="reveal"><span class="headline-mask"><span class="headline-line" data-headline>Commandes prévues.</span></span></h2>
     </div>
     <div class="sec-aside reveal">On commence par les produits du quotidien qui se conservent et se transportent bien. La liste s'élargit avec la demande.</div>
   </div>
 
-  <div class="grid">
-    <div class="case reveal">
+  <div class="grid cascade">
+    <div class="case">
       <div class="case-top">
         <span class="case-num">01</span>
         <span>Entretien maison</span>
@@ -542,7 +759,7 @@
       </div>
     </div>
 
-    <div class="case reveal">
+    <div class="case">
       <div class="case-top">
         <span class="case-num">02</span>
         <span>Lessive et linge</span>
@@ -559,7 +776,7 @@
       </div>
     </div>
 
-    <div class="case reveal">
+    <div class="case">
       <div class="case-top">
         <span class="case-num">03</span>
         <span>Papier et essuie-tout</span>
@@ -576,7 +793,7 @@
       </div>
     </div>
 
-    <div class="case reveal">
+    <div class="case">
       <div class="case-top">
         <span class="case-num">04</span>
         <span>Hygiène et soin</span>
@@ -593,7 +810,7 @@
       </div>
     </div>
 
-    <div class="case reveal">
+    <div class="case">
       <div class="case-top">
         <span class="case-num">05</span>
         <span>Cuisine</span>
@@ -610,7 +827,7 @@
       </div>
     </div>
 
-    <div class="case reveal">
+    <div class="case">
       <div class="case-top">
         <span class="case-num">06</span>
         <span>Multi-surfaces</span>
@@ -630,9 +847,9 @@
 </section>
 
 <!-- PHILOSOPHY -->
-<section class="philo">
-  <p class="philo-quote reveal">
-    On ne vend rien. On ne stocke rien. On <em>coordonne</em> — pour que ce que tu paies aille vraiment au produit, pas à la chaîne qui l'apporte jusqu'à toi.
+<section class="philo block">
+  <p class="philo-quote">
+    <span class="headline-mask"><span class="headline-line" data-headline>On ne vend rien. On ne stocke rien. On <em>coordonne</em> — pour que ce que tu paies aille vraiment au produit, pas à la chaîne qui l'apporte jusqu'à toi.</span></span>
   </p>
   <div class="philo-foot reveal">
     <span>— Prixy</span>
@@ -641,43 +858,44 @@
 </section>
 
 <!-- FONCTIONNEMENT -->
-<section class="sec" id="fonctionnement">
+<section class="sec block" id="fonctionnement">
   <div class="sec-head">
     <div>
       <div class="sec-eyebrow reveal">Fonctionnement</div>
-      <h2 class="reveal">Trois étapes.</h2>
+      <h2 class="reveal"><span class="headline-mask"><span class="headline-line" data-headline>Trois étapes.</span></span></h2>
     </div>
     <div class="sec-aside reveal">Aucun abonnement. Aucun engagement. Tu participes quand une commande te parle, tu ignores le reste.</div>
   </div>
 
-  <div class="steps">
-    <div class="step reveal">
+  <div class="steps cascade">
+    <div class="steps-progress"></div>
+    <div class="step">
       <div class="step-num">01</div>
       <div class="step-name">La commande s'ouvre</div>
       <div class="step-desc">Un produit, un fabricant français, une fenêtre de quelques jours. Tu réserves ta part et tu paies.</div>
     </div>
-    <div class="step reveal">
+    <div class="step">
       <div class="step-num">02</div>
       <div class="step-name">On attend le volume</div>
       <div class="step-desc">Si on est assez nombreux, la commande part. Sinon tu es remboursé·e à l'euro près, sans frais ni délai.</div>
     </div>
-    <div class="step reveal">
+    <div class="step">
       <div class="step-num">03</div>
       <div class="step-name">Livraison directe</div>
       <div class="step-desc">Un seul camion, de l'usine au point relais ou à ton adresse. Pas de stock, pas d'entrepôt.</div>
     </div>
   </div>
 
-  <div class="nums">
-    <div class="num-cell reveal">
+  <div class="nums cascade">
+    <div class="num-cell">
       <div class="num-big" data-count="4">0<sup>%</sup></div>
       <div class="num-label">Commission Prixy, transparente, sur le total de la commande.</div>
     </div>
-    <div class="num-cell reveal">
+    <div class="num-cell">
       <div class="num-big" data-count="3">0</div>
       <div class="num-label">Intermédiaires supprimés entre le fabricant et toi.</div>
     </div>
-    <div class="num-cell reveal">
+    <div class="num-cell">
       <div class="num-big" data-count="1">0</div>
       <div class="num-label">Camion mutualisé par commande, livré au plus court.</div>
     </div>
@@ -685,14 +903,14 @@
 </section>
 
 <!-- SIGNUP -->
-<section class="signup-sec" id="inscription">
+<section class="signup-sec block" id="inscription">
   <div class="signup-wrap">
     <div>
       <div class="sec-eyebrow reveal">Liste d'attente</div>
-      <h2 class="reveal" style="margin-top: 16px;">Préviens-moi au lancement.</h2>
+      <h2 class="reveal" style="margin-top: 16px;"><span class="headline-mask"><span class="headline-line" data-headline>Préviens-moi au lancement.</span></span></h2>
       <p class="reveal">Aucun spam. Un email quand la première commande s'ouvre dans ta zone. Désinscription en un clic, données stockées en France.</p>
     </div>
-    <form class="signup reveal" id="form">
+    <form class="signup cascade" id="form">
       <div class="row-2">
         <div class="field">
           <label>Prénom</label>
@@ -717,15 +935,15 @@
 </section>
 
 <!-- FAQ -->
-<section class="faq-sec" id="faq">
+<section class="faq-sec block" id="faq">
   <div class="sec-head">
     <div>
       <div class="sec-eyebrow reveal">Questions fréquentes</div>
-      <h2 class="reveal">Ce qu'on nous demande.</h2>
+      <h2 class="reveal"><span class="headline-mask"><span class="headline-line" data-headline>Ce qu'on nous demande.</span></span></h2>
     </div>
     <div class="sec-aside reveal">Une autre question ? Écris à hello@prixy.fr, on répond sous 48 h, sans automatisation.</div>
   </div>
-  <div class="faq">
+  <div class="faq cascade">
     <div class="faq-item">
       <button class="faq-q">
         <span>C'est légal ?</span>
@@ -798,88 +1016,230 @@
 </footer>
 
 <script>
-  // ── HERO TITLE: split into words for slide-up reveal
-  const title = document.getElementById('hero-title');
-  if (title) {
-    let delay = 0.2;
-    const wrapText = (text) => {
-      return text.split(' ').map((w) => {
-        const out = `<span class="word"><span style="animation-delay:${delay}s">${w}</span></span>`;
-        delay += 0.08;
+(function(){
+  'use strict';
+
+  // ─── Reduced motion guard ────────────────────────────────
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hover  = window.matchMedia('(hover:hover)').matches;
+
+  // ─── Smooth scroll (easeOutQuart) — remplace scroll-behavior CSS ─
+  function smoothScrollTo(targetY, duration){
+    if (reduce){ window.scrollTo(0, targetY); return; }
+    const startY = window.scrollY;
+    const delta  = targetY - startY;
+    const t0 = performance.now();
+    const ease = t => 1 - Math.pow(1 - t, 4);
+    function step(now){
+      const t = Math.min(1, (now - t0) / duration);
+      window.scrollTo(0, startY + delta * ease(t));
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href');
+      if (id.length < 2) return;
+      const t = document.querySelector(id);
+      if (!t) return;
+      e.preventDefault();
+      const top = t.getBoundingClientRect().top + window.scrollY - 24;
+      smoothScrollTo(top, 900);
+    });
+  });
+
+  // ─── Scroll progress bar + nav scrolled + steps progress + hero parallax ─
+  const bar  = document.getElementById('scroll-progress');
+  const nav  = document.querySelector('nav.top');
+  const heroMeta = document.querySelector('.hero-meta');
+  const stepsEl  = document.querySelector('.steps');
+  const stepsBar = document.querySelector('.steps-progress');
+  function onScroll(){
+    const h = document.documentElement;
+    const total = h.scrollHeight - h.clientHeight;
+    const p = total > 0 ? (h.scrollTop / total) * 100 : 0;
+    if (bar) bar.style.setProperty('--p', p + '%');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 8);
+
+    // Hero parallax léger sur la meta (transform-only)
+    if (heroMeta && window.scrollY < window.innerHeight){
+      heroMeta.style.setProperty('--py', (window.scrollY * -0.12) + 'px');
+    }
+
+    // Steps progress — remplit le rail vertical au passage
+    if (stepsEl && stepsBar){
+      const r = stepsEl.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh * 0.75;
+      const end   = vh * 0.25;
+      const traveled = Math.min(1, Math.max(0, (start - r.top) / (r.height + (start - end))));
+      stepsBar.style.setProperty('--steps-p', traveled);
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+
+  // ─── Split words pour [data-headline] (préserve <em>) ────
+  function splitHeadlines(){
+    document.querySelectorAll('[data-headline]').forEach(line => {
+      let idx = 0;
+      const wrapWords = (node) => {
+        const out = document.createDocumentFragment();
+        [...node.childNodes].forEach(c => {
+          if (c.nodeType === Node.TEXT_NODE){
+            c.nodeValue.split(/(\s+)/).forEach(token => {
+              if (token === '') return;
+              if (/^\s+$/.test(token)){ out.appendChild(document.createTextNode(' ')); return; }
+              const w = document.createElement('span');
+              w.className = 'headline-word';
+              w.style.setProperty('--w', idx++);
+              w.textContent = token;
+              out.appendChild(w);
+            });
+          } else if (c.nodeType === Node.ELEMENT_NODE){
+            const wrapped = wrapWords(c);
+            const clone = c.cloneNode(false);
+            clone.appendChild(wrapped);
+            out.appendChild(clone);
+          }
+        });
         return out;
-      }).join(' ');
-    };
-    const children = [...title.childNodes];
-    title.innerHTML = '';
-    children.forEach(c => {
-      if (c.nodeType === Node.TEXT_NODE) {
-        const txt = c.textContent.trim();
-        if (txt) {
-          const span = document.createElement('span');
-          span.innerHTML = wrapText(txt) + ' ';
-          title.appendChild(span);
-        }
-      } else {
-        title.appendChild(c);
-      }
+      };
+      const frag = wrapWords(line);
+      line.innerHTML = '';
+      line.appendChild(frag);
     });
   }
+  splitHeadlines();
 
-  // ── REVEAL ON SCROLL
-  const io = new IntersectionObserver(es => {
-    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  // ─── Observer unique : reveal + cascade + headline + block ─
+  function setStaggerIndex(parent){
+    [...parent.children].forEach((c, i) => c.style.setProperty('--i', i));
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      if (el.classList.contains('reveal-stagger') || el.classList.contains('cascade')) setStaggerIndex(el);
+      el.classList.add('in');
+      if (el.dataset.fire) fireSpecial(el.dataset.fire, el);
+      io.unobserve(el);
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+  document.querySelectorAll('.reveal, .reveal-stagger, .cascade, .headline-mask, .hero-meta, .hero-foot, [data-fire]').forEach(el => io.observe(el));
 
-  // ── NUMBER COUNTERS
-  const numIO = new IntersectionObserver(es => {
-    es.forEach(e => {
+  // Block whoosh — observer dédié, plus généreux
+  const blockIo = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in-view'); blockIo.unobserve(e.target); } });
+  }, { threshold: 0.06, rootMargin: '0px 0px -6% 0px' });
+  document.querySelectorAll('section.block').forEach(s => blockIo.observe(s));
+
+  // Hero — l'observer ne s'amorce pas pour les éléments déjà visibles à un threshold court ;
+  // on les force "in" au load.
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.hero .headline-mask, .hero .hero-meta, .hero .hero-foot').forEach(el => el.classList.add('in'));
+  });
+
+  // ─── Number counters (outQuart) ──────────────────────────
+  const numIo = new IntersectionObserver(entries => {
+    entries.forEach(e => {
       if (!e.isIntersecting) return;
       const el = e.target;
       const target = parseInt(el.dataset.count, 10);
       const sup = el.querySelector('sup');
       const supHTML = sup ? sup.outerHTML : '';
-      const start = performance.now();
-      const dur = 1400;
+      if (reduce){ el.innerHTML = target + supHTML; numIo.unobserve(el); return; }
+      const t0 = performance.now();
+      const dur = 1100;
       const tick = (now) => {
-        const p = Math.min((now - start) / dur, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
+        const t = Math.min(1, (now - t0) / dur);
+        const eased = 1 - Math.pow(1 - t, 4);
         el.innerHTML = Math.floor(eased * target) + supHTML;
-        if (p < 1) requestAnimationFrame(tick);
+        if (t < 1) requestAnimationFrame(tick);
         else el.innerHTML = target + supHTML;
       };
       requestAnimationFrame(tick);
-      numIO.unobserve(el);
+      numIo.unobserve(el);
     });
   }, { threshold: 0.4 });
-  document.querySelectorAll('[data-count]').forEach(el => numIO.observe(el));
+  document.querySelectorAll('[data-count]').forEach(el => numIo.observe(el));
 
-  // ── FAQ
+  // ─── Magnetic (CTAs) ─────────────────────────────────────
+  if (hover && !reduce){
+    document.querySelectorAll('.magnetic').forEach(el => {
+      const inner = el.querySelector('.magnetic-inner') || el;
+      const s = 0.22;
+      el.addEventListener('mousemove', ev => {
+        const r = el.getBoundingClientRect();
+        const dx = ev.clientX - (r.left + r.width / 2);
+        const dy = ev.clientY - (r.top + r.height / 2);
+        el.style.transform = `translate(${dx * s}px, ${dy * s}px)`;
+        if (inner !== el) inner.style.transform = `translate(${dx * s * 0.4}px, ${dy * s * 0.4}px)`;
+      });
+      const reset = () => { el.style.transform = ''; if (inner !== el) inner.style.transform = ''; };
+      el.addEventListener('mouseleave', reset);
+      el.addEventListener('blur', reset, true);
+    });
+  }
+
+  // ─── Dispatch data-fire (placeholder, hooks futurs) ──────
+  function fireSpecial(name, el){
+    // Réservé pour ticker live, dots, etc. Pour l'instant : log silencieux.
+  }
+
+  // ─── FAQ accordion ───────────────────────────────────────
   document.querySelectorAll('.faq-item').forEach(item => {
-    item.querySelector('.faq-q').addEventListener('click', () => {
+    const q = item.querySelector('.faq-q');
+    if (!q) return;
+    q.addEventListener('click', () => {
       const was = item.classList.contains('open');
       document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
       if (!was) item.classList.add('open');
     });
   });
 
-  // ── FORM
-  document.getElementById('form').addEventListener('submit', e => {
-    e.preventDefault();
-    const btn = e.target.querySelector('.submit');
-    btn.textContent = '✓ Inscrit — à très vite';
-    btn.style.background = '#1f8d3a';
+  // ─── Form submit ─────────────────────────────────────────
+  const form = document.getElementById('form');
+  if (form){
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const btn = form.querySelector('.submit');
+      if (btn){ btn.textContent = '✓ Inscrit — à très vite'; btn.style.background = '#1f8d3a'; }
+    });
+  }
+
+  // ─── Wordmark footer split (lettres respirent) ───────────
+  document.querySelectorAll('.foot-mark').forEach(mark => {
+    [...mark.childNodes].forEach(n => {
+      if (n.nodeType !== Node.TEXT_NODE) return;
+      const txt = n.nodeValue;
+      const frag = document.createDocumentFragment();
+      [...txt].forEach((ch, i) => {
+        if (ch.trim() === ''){ frag.appendChild(document.createTextNode(ch)); return; }
+        const s = document.createElement('span');
+        s.className = 'wm-letter';
+        s.style.setProperty('--l', i);
+        s.style.setProperty('--wm-y', (i % 2 === 0 ? -3 : 3) + 'px');
+        s.textContent = ch;
+        frag.appendChild(s);
+      });
+      n.parentNode.replaceChild(frag, n);
+    });
   });
 
-  // ── CLOCK
+  // ─── Clock ───────────────────────────────────────────────
   const clock = document.getElementById('clock');
-  const updateClock = () => {
-    const d = new Date();
+  if (clock){
     const pad = n => String(n).padStart(2, '0');
-    clock.textContent = `Paris · ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  };
-  updateClock();
-  setInterval(updateClock, 1000);
+    const update = () => {
+      const d = new Date();
+      clock.textContent = `Paris · ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+    update();
+    setInterval(update, 1000);
+  }
+})();
 </script>
 
 </body>
