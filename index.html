@@ -3,1638 +3,573 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRIXY — Le pouvoir d'achat, c'est une affaire d'équipe</title>
+<title>Prixy — Le pouvoir d'achat collectif</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #fafaf7;
-    --bg-soft: #f4f3ee;
-    --ink: #0a0e27;
-    --ink-soft: #4a4f6b;
-    --ink-muted: #8b8fa3;
-    --line: #e8e6df;
-    --line-soft: #efede6;
-    --accent: #1e3aff;
-    --accent-deep: #0a1b8c;
-    --accent-soft: #e8ecff;
-    --warn: #d63b3b;
-    --paper: #ffffff;
-    --dark: #0a0e27;
-    --dark-soft: #141838;
-    --dark-line: #232751;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-muted: #8a8a8a;
+    --line: #ececec;
+    --line-soft: #f4f4f4;
+    --bg: #ffffff;
+    --accent: #7B1E3A;
+    --accent-soft: #f7eef1;
+    --max: 720px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   html { scroll-behavior: smooth; }
+
   body {
-    font-family: 'Inter Tight', -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--ink);
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 16px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
   }
 
-  .container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
-  .grain {
-    position: fixed; inset: 0; pointer-events: none; z-index: 1;
-    opacity: 0.035; mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  .container {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
   }
 
-  /* NAV */
-  nav.top {
-    position: sticky; top: 0; z-index: 50;
-    backdrop-filter: blur(14px);
-    background: rgba(250,250,247,0.78);
-    border-bottom: 1px solid var(--line);
-  }
-  nav.top .inner {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 32px; max-width: 1180px; margin: 0 auto;
-  }
-  .brand {
-    display: flex; gap: 6px; align-items: center;
-    font-family: 'Instrument Serif', serif;
-    font-size: 22px; letter-spacing: -0.02em; font-weight: 400;
-  }
-  .brand-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 12px rgba(30,58,255,0.5);
-    animation: pulse 2.4s infinite;
-  }
-  @keyframes pulse {
-    0%,100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.3); opacity: 0.7; }
-  }
-  .nav-links { display: flex; gap: 28px; font-size: 13.5px; color: var(--ink-soft); }
-  .nav-links a {
-    color: inherit; text-decoration: none; position: relative;
-    transition: color 0.25s;
-  }
-  .nav-links a:hover { color: var(--ink); }
-  .nav-links a::after {
-    content: ''; position: absolute; left: 0; bottom: -4px;
-    width: 0; height: 1px; background: var(--ink);
-    transition: width 0.35s cubic-bezier(.25,.8,.25,1);
-  }
-  .nav-links a:hover::after { width: 100%; }
-  .nav-cta {
-    padding: 9px 18px; border: 1px solid var(--ink);
-    border-radius: 999px; font-size: 13px; font-weight: 500;
-    background: transparent; color: var(--ink); cursor: pointer;
-    transition: all 0.3s;
-  }
-  .nav-cta:hover { background: var(--ink); color: var(--paper); }
-
-  /* HERO */
-  .hero {
-    padding: 80px 0 100px;
-    position: relative;
-    border-bottom: 1px solid var(--line);
-  }
-  .hero-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
-    align-items: center;
-  }
-  .eyebrow {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--ink-muted);
-    padding: 6px 0; margin-bottom: 28px;
-  }
-  .eyebrow::before {
-    content: ''; width: 24px; height: 1px; background: var(--ink-muted);
-  }
-  h1.display {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(48px, 6vw, 78px);
-    line-height: 1.02; letter-spacing: -0.025em;
-    font-weight: 400;
+  /* Typography */
+  h1, h2, h3 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
     color: var(--ink);
   }
-  h1.display em {
-    font-style: italic; color: var(--accent);
-  }
-  .hero p.lead {
-    font-size: 16.5px; line-height: 1.6;
-    color: var(--ink-soft);
-    max-width: 460px; margin-top: 30px;
-  }
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 10px;
-    margin-top: 40px;
-    background: var(--accent);
-    color: white; border: none; cursor: pointer;
-    padding: 16px 28px; border-radius: 999px;
-    font-size: 14.5px; font-weight: 500;
-    transition: all 0.35s cubic-bezier(.25,.8,.25,1);
-    box-shadow: 0 4px 16px rgba(30,58,255,0.25);
-  }
-  .hero-cta:hover {
-    background: var(--accent-deep); transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(30,58,255,0.35);
-  }
-  .hero-cta svg { transition: transform 0.3s; }
-  .hero-cta:hover svg { transform: translateX(4px); }
-  .hero-note {
-    margin-top: 16px; font-size: 12.5px; color: var(--ink-muted);
-    font-family: 'JetBrains Mono', monospace;
-  }
+  h1 { font-size: 36px; line-height: 1.15; }
+  h2 { font-size: 24px; line-height: 1.25; }
+  h3 { font-size: 17px; line-height: 1.35; }
 
-  /* MOCKUP */
-  .mockup-wrap {
-    perspective: 1400px;
-    display: flex; justify-content: center;
-  }
-  .mockup {
-    width: 320px; background: white;
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    padding: 22px;
-    box-shadow:
-      0 1px 0 rgba(0,0,0,0.02),
-      0 30px 60px -20px rgba(10,14,39,0.15),
-      0 10px 30px -10px rgba(10,14,39,0.08);
-    transform: rotateY(-3deg) rotateX(2deg);
-    transition: transform 0.6s cubic-bezier(.25,.8,.25,1);
-    position: relative;
-  }
-  .mockup:hover { transform: rotateY(0deg) rotateX(0deg); }
-  .mockup-header {
-    display: flex; justify-content: space-between;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--ink-muted);
-    text-transform: uppercase; letter-spacing: 0.1em;
-    padding-bottom: 14px; border-bottom: 1px solid var(--line-soft);
-    margin-bottom: 16px;
-  }
-  .mockup-tabs {
-    display: flex; gap: 4px; background: var(--bg-soft);
-    padding: 4px; border-radius: 8px; margin-bottom: 18px;
-  }
-  .mockup-tab {
-    flex: 1; padding: 6px; text-align: center;
-    font-size: 11px; color: var(--ink-muted);
-    border-radius: 6px;
-  }
-  .mockup-tab.active { background: white; color: var(--ink); font-weight: 500;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  .mockup-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 9px 0; font-size: 12px;
-    border-bottom: 1px dashed var(--line-soft);
-  }
-  .mockup-row:last-child { border-bottom: none; }
-  .mockup-row .lbl { color: var(--ink-muted); }
-  .mockup-row .val { color: var(--ink); font-weight: 500; }
-  .mockup-price {
-    display: flex; justify-content: space-between; align-items: baseline;
-    margin: 10px 0;
-  }
-  .mockup-price .label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; text-transform: uppercase; color: var(--ink-muted);
-    letter-spacing: 0.1em;
-  }
-  .mockup-price .amount {
-    font-family: 'Instrument Serif', serif;
-    font-size: 34px; font-weight: 400; color: var(--accent);
-    letter-spacing: -0.02em;
-  }
-  .mockup-progress {
-    background: var(--accent-soft);
-    border-radius: 10px; padding: 14px;
-    margin-top: 14px;
-  }
-  .mockup-progress .top {
-    display: flex; justify-content: space-between;
-    font-size: 11px; color: var(--ink-soft); margin-bottom: 10px;
-  }
-  .mockup-progress .num {
-    font-family: 'Instrument Serif', serif;
-    font-size: 26px; color: var(--accent); font-weight: 400;
-  }
-  .progress-bar {
-    height: 4px; background: white; border-radius: 99px; overflow: hidden;
-    margin-top: 8px;
-  }
-  .progress-fill {
-    height: 100%; width: 0; background: var(--accent);
-    border-radius: 99px;
-    animation: fill 2.4s cubic-bezier(.25,.8,.25,1) 0.6s forwards;
-  }
-  @keyframes fill { to { width: 76%; } }
+  p { color: var(--ink-soft); }
 
-  /* SECTION HEADER */
-  .sec-head {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
-    align-items: end;
-    margin-bottom: 60px;
-  }
-  h2.sec {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(38px, 4.5vw, 56px);
-    line-height: 1.05; letter-spacing: -0.022em;
-    font-weight: 400;
-  }
-  .sec-meta { font-size: 14px; color: var(--ink-soft); line-height: 1.6; max-width: 380px; justify-self: end; }
-
-  /* STEPS */
-  .steps { padding: 110px 0; border-bottom: 1px solid var(--line); }
-  .steps-grid {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;
-  }
-  .step-card {
-    background: white; border: 1px solid var(--line);
-    border-radius: 14px; padding: 24px;
-    position: relative; overflow: hidden;
-    transition: transform 0.5s, box-shadow 0.5s;
-  }
-  .step-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px -20px rgba(10,14,39,0.1);
-  }
-  .step-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--ink-muted); margin-bottom: 70px;
-    display: flex; justify-content: space-between;
-  }
-  .step-visual { height: 100px; margin-bottom: 24px; position: relative; }
-  .step-card h3 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 22px; font-weight: 400; letter-spacing: -0.01em;
-    margin-bottom: 10px; line-height: 1.2;
-  }
-  .step-card p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
-  .step-card .footnote {
-    margin-top: 22px; padding-top: 14px;
-    border-top: 1px dashed var(--line);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; text-transform: uppercase; color: var(--ink-muted);
-    letter-spacing: 0.1em;
-  }
-
-  /* step 1 viz - small mockup */
-  .viz-mini {
-    background: var(--bg-soft); border-radius: 8px;
-    padding: 12px; font-size: 9px;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--ink-muted);
-    display: flex; flex-direction: column; gap: 6px;
-    height: 100%;
-  }
-  .viz-mini .line { display: flex; justify-content: space-between; }
-  .viz-mini .bar {
-    height: 3px; background: var(--accent-soft); border-radius: 99px;
-    margin-top: 4px; overflow: hidden;
-  }
-  .viz-mini .bar::after {
-    content: ''; display: block; height: 100%; width: 60%;
-    background: var(--accent); border-radius: 99px;
-  }
-  /* step 2 viz - dots */
-  .viz-dots {
-    display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;
-    align-items: center;
-  }
-  .viz-dots .d {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--line);
-    transition: background 0.3s;
-  }
-  .viz-dots .d.on { background: var(--accent); }
-  /* step 3 viz - truck */
-  .viz-truck {
-    display: flex; align-items: center; justify-content: center;
-    height: 100%; gap: 14px;
-    color: var(--ink-soft);
-  }
-  .viz-truck svg { width: 70px; height: auto; }
-
-  /* PRODUCT CARD */
-  .product-card {
-    background: white; border: 1px solid var(--line);
-    border-radius: 14px; padding: 22px 26px;
-    margin-top: 20px;
-    display: grid; grid-template-columns: 1fr auto auto;
-    gap: 30px; align-items: center;
-  }
-  .product-card .name {
-    font-family: 'Instrument Serif', serif;
-    font-size: 22px; font-weight: 400;
-  }
-  .product-card .meta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; color: var(--ink-muted);
-    text-transform: uppercase; letter-spacing: 0.1em;
-    margin-top: 4px;
-  }
-  .price-old {
-    font-family: 'Instrument Serif', serif;
-    font-size: 26px; color: var(--ink-muted);
-    text-decoration: line-through;
-    text-decoration-color: var(--warn);
-  }
-  .price-new {
-    font-family: 'Instrument Serif', serif;
-    font-size: 30px; color: var(--accent); font-weight: 400;
-  }
-  .product-footer {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--ink-muted);
-    margin-top: 18px; text-align: center;
-    letter-spacing: 0.05em;
-  }
-
-  /* MARGINS SECTION */
-  .margins {
-    padding: 110px 0;
-    background: var(--bg-soft);
-    border-bottom: 1px solid var(--line);
-  }
-  .margins-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-    margin-top: 50px;
-  }
-  .panel {
-    background: white; border: 1px solid var(--line);
-    border-radius: 16px; padding: 28px;
-  }
-  .panel-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; text-transform: uppercase; color: var(--ink-muted);
-    letter-spacing: 0.15em; margin-bottom: 6px;
-  }
-  .panel-h { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 26px; }
-  .slider-row {
-    display: grid; grid-template-columns: 110px 1fr 80px;
-    gap: 14px; align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line-soft);
-    font-size: 13px;
-  }
-  .slider-row:last-of-type { border-bottom: none; }
-  .slider-label { color: var(--ink); }
-  .slider-track {
-    height: 4px; background: var(--bg-soft); border-radius: 99px;
-    position: relative; cursor: pointer;
-  }
-  .slider-fill {
-    position: absolute; left: 0; top: 0; height: 100%;
-    background: var(--ink); border-radius: 99px;
-    transition: width 0.5s cubic-bezier(.25,.8,.25,1);
-  }
-  .panel.dark .slider-fill { background: var(--accent); }
-  .slider-thumb {
-    position: absolute; top: 50%; width: 14px; height: 14px;
-    background: white; border: 2px solid var(--ink);
-    border-radius: 50%; transform: translate(-50%, -50%);
-    transition: left 0.5s cubic-bezier(.25,.8,.25,1);
-  }
-  .panel.dark .slider-thumb { border-color: var(--accent); }
-  .slider-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px; color: var(--ink-soft); text-align: right;
-  }
-  .panel .total {
-    margin-top: 20px; padding-top: 18px;
-    border-top: 1px solid var(--line);
-    display: flex; justify-content: space-between; align-items: baseline;
-  }
-  .total-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--ink-muted);
-    text-transform: uppercase; letter-spacing: 0.1em;
-  }
-  .total-val {
-    font-family: 'Instrument Serif', serif;
-    font-size: 28px; font-weight: 400;
-  }
-  .panel.dark .total-val { color: var(--accent); }
-  .panel-note {
-    margin-top: 14px; font-size: 12px; color: var(--ink-muted); line-height: 1.5;
-  }
-  .panel.highlight {
-    background: var(--accent); color: white;
-    padding: 14px 16px; border-radius: 8px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 12.5px;
-    margin: 18px 0;
-  }
-  .panel.highlight .lbl { opacity: 0.85; }
-  .panel.highlight .val {
-    font-family: 'Instrument Serif', serif;
-    font-size: 22px;
-  }
-
-  /* CTA DARK */
-  .cta-dark {
-    background: var(--dark);
-    color: #fff;
-    padding: 100px 0;
-    position: relative;
-    overflow: hidden;
-  }
-  .cta-dark::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(30,58,255,0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(30,58,255,0.08) 0%, transparent 50%);
-    pointer-events: none;
-  }
-  .cta-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-    position: relative; z-index: 2;
-  }
-  .cta-dark h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(36px, 4.5vw, 52px);
-    line-height: 1.05; letter-spacing: -0.02em;
-    font-weight: 400;
-  }
-  .cta-dark .eyebrow { color: rgba(255,255,255,0.5); }
-  .cta-dark .eyebrow::before { background: rgba(255,255,255,0.3); }
-  .cta-dark p {
-    color: rgba(255,255,255,0.65);
-    margin: 24px 0; font-size: 15px;
-    max-width: 480px;
-  }
-  .counter {
-    margin-top: 30px; padding: 20px;
-    background: var(--dark-soft); border: 1px solid var(--dark-line);
-    border-radius: 12px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .counter-num {
-    font-family: 'Instrument Serif', serif;
-    font-size: 36px; color: var(--accent); font-weight: 400;
-    line-height: 1;
-  }
-  .counter-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; text-transform: uppercase;
-    color: rgba(255,255,255,0.5); letter-spacing: 0.12em;
-    margin-top: 6px;
-  }
-  .counter-bar {
-    flex: 1; margin-left: 30px;
-    height: 4px; background: var(--dark-line); border-radius: 99px;
-    overflow: hidden; position: relative;
-  }
-  .counter-fill {
-    height: 100%; background: linear-gradient(90deg, var(--accent), #5b76ff);
-    border-radius: 99px;
-    width: 0;
-    transition: width 2s cubic-bezier(.25,.8,.25,1);
-  }
-  .counter-info {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; text-transform: uppercase;
-    color: rgba(255,255,255,0.45); letter-spacing: 0.1em;
-    margin-top: 12px;
-    display: flex; justify-content: space-between;
-  }
-
-  .form-fields { display: flex; flex-direction: column; gap: 16px; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .field {
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .field label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; text-transform: uppercase;
-    color: rgba(255,255,255,0.5); letter-spacing: 0.12em;
-  }
-  .field input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--dark-line);
-    padding: 8px 0;
-    color: white;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 14.5px;
-    transition: border-color 0.3s;
-    outline: none;
-  }
-  .field input:focus { border-bottom-color: var(--accent); }
-  .field input::placeholder { color: rgba(255,255,255,0.3); }
-  .checkbox-row {
-    display: flex; align-items: flex-start; gap: 12px;
-    font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5;
-    margin-top: 8px;
-  }
-  .checkbox-row input { margin-top: 2px; accent-color: var(--accent); }
-  .submit-dark {
-    margin-top: 12px;
-    background: var(--accent); color: white;
-    border: none; padding: 16px;
-    border-radius: 999px; font-size: 14.5px; font-weight: 500;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
-    display: flex; justify-content: center; align-items: center; gap: 10px;
-  }
-  .submit-dark:hover { background: #3651ff; transform: translateY(-1px); }
-  .form-foot {
-    margin-top: 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: rgba(255,255,255,0.4);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    text-align: center;
-  }
-
-  /* FEEDBACK */
-  .feedback { padding: 110px 0; border-bottom: 1px solid var(--line); }
-  .feedback-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-  }
-  .feedback-form { display: flex; flex-direction: column; gap: 20px; }
-  .feedback-field label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; text-transform: uppercase;
-    color: var(--ink-muted); letter-spacing: 0.12em;
-    display: flex; justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .feedback-field input,
-  .feedback-field textarea {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--line);
-    padding: 8px 0;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 14.5px;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.3s;
-    resize: none;
-  }
-  .feedback-field textarea { min-height: 80px; }
-  .feedback-field input:focus,
-  .feedback-field textarea:focus { border-bottom-color: var(--accent); }
-  .submit-light {
-    background: var(--ink);
-    color: white;
-    border: none;
-    padding: 16px 24px;
-    border-radius: 999px;
-    font-size: 14.5px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex; justify-content: center; align-items: center; gap: 10px;
-    margin-top: 12px;
-    transition: background 0.3s, transform 0.3s;
-  }
-  .submit-light:hover { background: var(--accent); transform: translateY(-1px); }
-  .feedback-foot {
-    margin-top: 10px; font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--ink-muted);
-    letter-spacing: 0.08em; text-transform: uppercase; text-align: center;
-  }
-
-  /* FAQ */
-  .faq { padding: 110px 0 90px; border-bottom: 1px solid var(--line); }
-  .faq-list { margin-top: 50px; }
-  .faq-item {
-    border-bottom: 1px solid var(--line);
-    padding: 22px 0;
-    cursor: pointer;
-    transition: padding 0.4s;
-  }
-  .faq-q {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 16.5px;
-    color: var(--ink);
-  }
-  .faq-icon {
-    width: 28px; height: 28px; border: 1px solid var(--line);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.4s, background 0.4s, border-color 0.4s;
-    flex-shrink: 0;
-  }
-  .faq-icon svg { width: 12px; height: 12px; transition: transform 0.4s; }
-  .faq-item.open .faq-icon { background: var(--ink); border-color: var(--ink); }
-  .faq-item.open .faq-icon svg { transform: rotate(45deg); stroke: white; }
-  .faq-a {
-    max-height: 0; overflow: hidden;
-    transition: max-height 0.5s cubic-bezier(.25,.8,.25,1), margin-top 0.4s;
-    color: var(--ink-soft); font-size: 14.5px; line-height: 1.65;
-  }
-  .faq-item.open .faq-a {
-    max-height: 200px;
-    margin-top: 14px;
-  }
-
-  /* FOOTER */
-  footer { padding: 80px 0 40px; }
-  .footer-grid {
-    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;
-    margin-bottom: 60px;
-  }
-  .footer-brand p {
-    font-size: 13px; color: var(--ink-soft); margin-top: 20px; line-height: 1.6;
-    max-width: 280px;
-  }
-  .social-row { display: flex; gap: 10px; margin-top: 22px; }
-  .social {
-    width: 32px; height: 32px; border-radius: 50%;
-    border: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ink-soft); text-decoration: none;
-    transition: all 0.3s;
-    font-size: 13px;
-  }
-  .social:hover { background: var(--ink); color: white; border-color: var(--ink); transform: translateY(-2px); }
-  .footer-col h4 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; text-transform: uppercase;
-    color: var(--ink-muted); letter-spacing: 0.12em;
-    margin-bottom: 16px;
-    font-weight: 500;
-  }
-  .footer-col a {
-    display: block; color: var(--ink-soft);
-    font-size: 13.5px; padding: 4px 0;
+  a {
+    color: var(--accent);
     text-decoration: none;
-    transition: color 0.25s;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
   }
-  .footer-col a:hover { color: var(--ink); }
-  .footer-bottom {
+  a:hover { border-bottom-color: var(--accent); }
+  a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Header */
+  header.site {
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+  }
+  header.site .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .wordmark {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    border-bottom: none;
+  }
+  .wordmark:hover { border-bottom: none; }
+  header.site nav a {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-left: 24px;
+    border-bottom: none;
+  }
+  header.site nav a:hover { color: var(--ink); border-bottom: none; }
+
+  /* Sections */
+  section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section:last-of-type { border-bottom: none; }
+
+  .eyebrow {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-bottom: 12px;
+  }
+
+  /* Hero */
+  .hero { padding: 80px 0 72px; }
+  .hero p.lead {
+    margin-top: 20px;
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { background: #5e152c; border-bottom: none; }
+  .btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent);
+  }
+
+  .btn-link {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* Steps */
+  .steps { list-style: none; counter-reset: step; margin-top: 28px; }
+  .steps > li {
+    counter-increment: step;
+    padding: 24px 0;
     border-top: 1px solid var(--line);
-    padding-top: 24px;
-    display: flex; justify-content: space-between;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; color: var(--ink-muted);
-    letter-spacing: 0.08em; text-transform: uppercase;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    align-items: baseline;
   }
+  .steps > li:last-child { border-bottom: 1px solid var(--line); }
+  .steps > li::before {
+    content: counter(step, decimal-leading-zero);
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .steps h3 { margin-bottom: 6px; }
+  .steps p { font-size: 15px; }
 
-  /* REVEAL ANIMATIONS */
-  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(.25,.8,.25,1), transform 0.9s cubic-bezier(.25,.8,.25,1); }
-  .reveal.is-visible { opacity: 1; transform: none; }
-  .reveal-delay-1 { transition-delay: 0.08s; }
-  .reveal-delay-2 { transition-delay: 0.16s; }
-  .reveal-delay-3 { transition-delay: 0.24s; }
-  .reveal-delay-4 { transition-delay: 0.32s; }
-
-  /* DIVIDER ICON */
-  .divider {
-    text-align: center; padding: 60px 0;
+  /* Benefits — simple bullets */
+  .bullets { list-style: none; margin-top: 24px; }
+  .bullets li {
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .bullets li:last-child { border-bottom: 1px solid var(--line); }
+  .bullets li::before {
+    content: '—';
     color: var(--ink-muted);
   }
-  .divider::before, .divider::after {
-    content: ''; display: inline-block;
-    width: 30px; height: 1px; background: var(--line);
-    vertical-align: middle; margin: 0 12px;
+  .bullets li strong {
+    color: var(--ink);
+    font-weight: 500;
   }
 
-  /* HERO ANIMATIONS */
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* Category picker */
+  .cats {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .hero-anim > * {
-    opacity: 0;
-    animation: slideUp 1.1s cubic-bezier(.25,.8,.25,1) forwards;
+  .cat {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .hero-anim > *:nth-child(1) { animation-delay: 0.1s; }
-  .hero-anim > *:nth-child(2) { animation-delay: 0.25s; }
-  .hero-anim > *:nth-child(3) { animation-delay: 0.4s; }
-  .hero-anim > *:nth-child(4) { animation-delay: 0.55s; }
-  .hero-anim > *:nth-child(5) { animation-delay: 0.7s; }
-
-  .mockup-wrap.hero-mockup {
-    opacity: 0;
-    animation: slideUp 1.3s cubic-bezier(.25,.8,.25,1) 0.4s forwards;
-  }
-
-  /* ───────────────────────────────────────────────
-     FUTURISTIC ANIMATIONS
-     ─────────────────────────────────────────────── */
-
-  .hero { position: relative; overflow: hidden; }
-  .aurora {
-    position: absolute; inset: -20% -10% auto -10%;
-    height: 120%; z-index: 0; pointer-events: none;
-    filter: blur(80px); opacity: 0.55;
-    background:
-      radial-gradient(40% 50% at 20% 30%, rgba(30,58,255,0.45), transparent 60%),
-      radial-gradient(35% 45% at 80% 20%, rgba(91,118,255,0.35), transparent 60%),
-      radial-gradient(50% 60% at 50% 80%, rgba(232,236,255,0.6), transparent 60%);
-    animation: auroraShift 18s ease-in-out infinite alternate;
-  }
-  @keyframes auroraShift {
-    0%   { transform: translate3d(0,0,0) scale(1); }
-    50%  { transform: translate3d(-3%, 2%, 0) scale(1.08) rotate(2deg); }
-    100% { transform: translate3d(2%, -1%, 0) scale(1.04) rotate(-1deg); }
-  }
-  .hero .container { position: relative; z-index: 2; }
-
-  .cta-dark .aurora-dark {
-    position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(30% 40% at 15% 30%, rgba(30,58,255,0.35), transparent 60%),
-      radial-gradient(35% 45% at 85% 70%, rgba(91,118,255,0.25), transparent 60%);
-    filter: blur(60px);
-    animation: auroraShift 22s ease-in-out infinite alternate;
-  }
-  .cta-dark .container { position: relative; z-index: 2; }
-
-  .particles {
-    position: absolute; inset: 0; z-index: 1;
-    pointer-events: none; overflow: hidden;
-  }
-  .particle {
-    position: absolute; width: 2px; height: 2px; border-radius: 50%;
-    background: rgba(91,118,255,0.7);
-    box-shadow: 0 0 8px rgba(91,118,255,0.9);
-    animation: floatUp linear infinite;
-  }
-  @keyframes floatUp {
-    0%   { transform: translateY(110%) translateX(0); opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 0.8; }
-    100% { transform: translateY(-10%) translateX(40px); opacity: 0; }
-  }
-
-  .cursor-glow {
-    position: fixed; top: 0; left: 0;
-    width: 420px; height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(30,58,255,0.10), transparent 60%);
-    pointer-events: none; z-index: 3;
-    transform: translate(-50%, -50%);
-    transition: opacity 0.4s;
-    mix-blend-mode: multiply;
-    opacity: 0;
-  }
-  body.cursor-active .cursor-glow { opacity: 1; }
-  @media (max-width: 900px) { .cursor-glow { display: none; } }
-
-  .char {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(40px) rotateX(-40deg);
-    transform-origin: bottom;
-    animation: charIn 0.9s cubic-bezier(.2,.7,.2,1) forwards;
-  }
-  @keyframes charIn {
-    to { opacity: 1; transform: translateY(0) rotateX(0); }
-  }
-
-  .mockup { isolation: isolate; }
-  .mockup::before {
-    content: '';
-    position: absolute; inset: 0;
-    border-radius: 24px;
-    background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.6) 50%, transparent 60%);
-    background-size: 250% 100%;
-    background-position: 200% 0;
-    pointer-events: none;
-    animation: shimmer 6s ease-in-out infinite;
-    mix-blend-mode: overlay;
-  }
-  @keyframes shimmer {
-    0%, 100% { background-position: 200% 0; }
-    50%      { background-position: -100% 0; }
-  }
-
-  .brand-dot { position: relative; }
-  .brand-dot::after {
-    content: ''; position: absolute; inset: -4px;
-    border-radius: 50%; border: 1px solid var(--accent);
-    animation: ringPulse 2.4s ease-out infinite;
-    opacity: 0;
-  }
-  @keyframes ringPulse {
-    0%   { transform: scale(0.6); opacity: 0.9; }
-    100% { transform: scale(2.6); opacity: 0; }
-  }
-
-  .step-card {
-    transform-style: preserve-3d;
-    will-change: transform;
-    position: relative; isolation: isolate;
-  }
-  .step-card .step-visual,
-  .step-card h3,
-  .step-card p { transform: translateZ(20px); }
-
-  .step-card::after {
-    content: ''; position: absolute; inset: -1px;
-    border-radius: 14px; padding: 1px;
-    background: linear-gradient(135deg, var(--accent), transparent 40%, transparent 60%, var(--accent));
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    opacity: 0; transition: opacity 0.5s;
-    pointer-events: none;
-  }
-  .step-card:hover::after { opacity: 1; }
-
-  .hero-cta, .submit-dark { position: relative; overflow: hidden; isolation: isolate; }
-  .hero-cta::before, .submit-dark::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.4), transparent 50%);
-    opacity: 0; transition: opacity 0.3s;
-    pointer-events: none; z-index: 1;
-  }
-  .hero-cta:hover::before, .submit-dark:hover::before { opacity: 1; }
-  .hero-cta > *, .submit-dark > * { position: relative; z-index: 2; }
-
-  .ticker {
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    background: var(--paper);
-    overflow: hidden;
-    padding: 22px 0;
-    position: relative;
-  }
-  .ticker::before, .ticker::after {
-    content: ''; position: absolute; top: 0; bottom: 0; width: 120px;
-    z-index: 2; pointer-events: none;
-  }
-  .ticker::before { left: 0; background: linear-gradient(90deg, var(--paper), transparent); }
-  .ticker::after  { right: 0; background: linear-gradient(-90deg, var(--paper), transparent); }
-  .ticker-track {
-    display: flex; gap: 50px; align-items: center;
-    animation: tickerSlide 42s linear infinite;
-    width: max-content;
-    font-family: 'Instrument Serif', serif;
-    font-size: 26px; color: var(--ink);
-    white-space: nowrap;
-  }
-  .ticker-track em {
-    font-style: normal; color: var(--ink-muted);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px; letter-spacing: 0.12em;
-  }
-  .ticker-dot {
-    display: inline-block;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px rgba(30,58,255,0.6);
-  }
-  @keyframes tickerSlide {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-
-  #counter-num {
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 24px rgba(30,58,255,0.4);
-  }
-
-  h2.sec em, h1.display em {
-    background: linear-gradient(120deg, var(--accent) 0%, #5b76ff 50%, var(--accent-deep) 100%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-            background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    animation: gradientShift 6s ease-in-out infinite alternate;
-  }
-  @keyframes gradientShift {
-    from { background-position: 0% 50%; }
-    to   { background-position: 100% 50%; }
-  }
-
-  .progress-fill {
-    box-shadow: 0 0 10px rgba(30,58,255,0.6);
-    position: relative; overflow: hidden;
-  }
-  .progress-fill::after {
-    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 24px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95));
-    animation: progressShine 2.6s ease-in-out infinite;
-  }
-  @keyframes progressShine {
-    0%   { transform: translateX(-50px); opacity: 0; }
-    50%  { opacity: 1; }
-    100% { transform: translateX(0); opacity: 0; }
-  }
-
-  .divider .glyph {
-    display: inline-block;
-    animation: spinSlow 14s linear infinite;
+  .cat:hover { color: var(--ink); border-color: var(--ink-muted); }
+  .cat.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
     color: var(--accent);
   }
-  @keyframes spinSlow { to { transform: rotate(360deg); } }
-
-  .scroll-progress {
-    position: fixed; top: 0; left: 0; height: 2px;
-    background: linear-gradient(90deg, var(--accent), #5b76ff);
-    z-index: 100; width: 0;
-    box-shadow: 0 0 12px rgba(30,58,255,0.6);
-    transition: width 0.1s linear;
+  .cat:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--accent);
+  }
+  .cats-note {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--ink-muted);
   }
 
-  .reveal-blur { opacity: 0; filter: blur(12px); transform: translateY(20px); transition: all 1.1s cubic-bezier(.25,.8,.25,1); }
-  .reveal-blur.is-visible { opacity: 1; filter: blur(0); transform: none; }
+  /* Form */
+  form.signup {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .input {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 11px 12px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    border-radius: 2px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    width: 100%;
+  }
+  .input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .input::placeholder { color: var(--ink-muted); }
 
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .hero-grid, .margins-grid, .cta-grid, .feedback-grid,
-    .sec-head, .steps-grid { grid-template-columns: 1fr; gap: 40px; }
-    .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
-    .footer-bottom { flex-direction: column; gap: 8px; }
-    .hero { padding: 50px 0 70px; }
-    .steps, .margins, .feedback, .faq, .cta-dark { padding: 70px 0; }
-    .ticker-track { font-size: 18px; gap: 32px; }
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .check-row input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: var(--accent);
+    width: 14px; height: 14px;
+  }
+
+  .form-note {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+
+  .form-success {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 2px;
+    font-size: 14px;
+    display: none;
+  }
+  .form-success.show { display: block; }
+
+  /* FAQ */
+  .faq-list { margin-top: 24px; }
+  .faq-item {
+    border-top: 1px solid var(--line);
+  }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 18px 0;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .faq-q:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-soft);
+    border-radius: 2px;
+  }
+  .chev {
+    width: 12px; height: 12px;
+    transition: transform 0.2s;
+    color: var(--ink-muted);
+    flex-shrink: 0;
+  }
+  .faq-item.open .chev { transform: rotate(180deg); color: var(--accent); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, padding 0.25s ease;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .faq-item.open .faq-a {
+    max-height: 400px;
+    padding: 0 0 20px;
+  }
+
+  /* Footer */
+  footer.site {
+    padding: 40px 0 56px;
+    color: var(--ink-muted);
+    font-size: 13px;
+  }
+  footer.site .container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer.site a {
+    color: var(--ink-muted);
+    border-bottom: none;
+  }
+  footer.site a:hover { color: var(--ink); }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    h1 { font-size: 30px; }
+    .hero { padding: 56px 0 48px; }
+    section { padding: 48px 0; }
+    .row-2 { grid-template-columns: 1fr; }
+    header.site nav a { margin-left: 16px; font-size: 13px; }
   }
 </style>
 </head>
 <body>
 
-<div class="grain"></div>
-<div class="scroll-progress" id="scroll-progress"></div>
-<div class="cursor-glow" id="cursor-glow"></div>
-
-<!-- NAV -->
-<nav class="top">
-  <div class="inner">
-    <div class="brand">
-      <span class="brand-dot"></span>
-      <span>PRIXY</span>
-    </div>
-    <div class="nav-links">
-      <a href="#concept">Le concept</a>
-      <a href="#etapes">Comment ça marche</a>
-      <a href="#lancement">Lancement</a>
-      <a href="#faq">FAQ</a>
-    </div>
-    <button class="nav-cta">Rejoindre la liste</button>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section class="hero" id="concept">
-  <div class="aurora"></div>
+<header class="site">
   <div class="container">
-    <div class="hero-grid">
-      <div class="hero-anim">
-        <div class="eyebrow">01 — Le concept</div>
-        <h1 class="display">Le pouvoir<br>d'achat, c'est une<br><em>affaire d'équipe</em></h1>
-        <p class="lead">Une commande groupée s'ouvre, on attend le volume, le fabricant livre. Les mêmes produits ménagers qu'en supermarché, à prix usine.</p>
-        <a class="hero-cta" href="#lancement">
-          Rejoindre la liste d'attente
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-        <div class="hero-note">— Lancement prévu — Mai 2026, sur 18 produits d'usage courant</div>
-      </div>
-      <div class="mockup-wrap hero-mockup">
-        <div class="mockup">
-          <div class="mockup-header">
-            <span>Commande #0418</span>
-            <span>● en cours</span>
-          </div>
-          <div class="mockup-tabs">
-            <div class="mockup-tab">Détails</div>
-            <div class="mockup-tab active">Groupe</div>
-            <div class="mockup-tab">Livraison</div>
-          </div>
-          <div class="mockup-row">
-            <span class="lbl">Produit</span>
-            <span class="val">Liquide vaisselle 1 L</span>
-          </div>
-          <div class="mockup-row">
-            <span class="lbl">Fabricant</span>
-            <span class="val">FR — 78 — Yvelines</span>
-          </div>
-          <div class="mockup-price">
-            <span class="label">Prix groupé</span>
-            <span class="amount">2,40 €</span>
-          </div>
-          <div class="mockup-progress">
-            <div class="top">
-              <span>Volume requis</span>
-              <span>76%</span>
-            </div>
-            <div style="display:flex;align-items:baseline;gap:8px;">
-              <span class="num">134</span>
-              <span style="font-size:11px;color:var(--ink-muted);font-family:'JetBrains Mono',monospace;">/ 175 commandes</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <a href="#" class="wordmark">prixy</a>
+    <nav>
+      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#inscription">S'inscrire</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <p class="eyebrow">Lancement prévu en mai 2026</p>
+    <h1>Le pouvoir d'achat, c'est une affaire d'équipe.</h1>
+    <p class="lead">Une commande groupée s'ouvre. On attend d'être assez nombreux. Le fabricant livre. Les mêmes produits du quotidien qu'en grande surface, achetés directement à l'usine.</p>
+    <a href="#inscription" class="btn-primary">Je veux être prévenu·e</a>
   </div>
 </section>
 
-<!-- TICKER -->
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-track" id="ticker-track"></div>
-</div>
-
-<!-- STEPS -->
-<section class="steps" id="etapes">
+<section id="fonctionnement">
   <div class="container">
-    <div class="sec-head">
-      <div>
-        <div class="eyebrow reveal">02 — Comment ça marche</div>
-        <h2 class="sec reveal">Trois étapes,<br>zéro intermédiaire.</h2>
-      </div>
-      <div class="sec-meta reveal reveal-delay-1">Pas d'abonnement, pas de stock, pas de magasin. On regroupe les commandes, on commande chez le fabricant, on livre directement chez vous.</div>
-    </div>
-
-    <div class="steps-grid">
-      <div class="step-card reveal">
-        <div class="step-num"><span>01</span><span>OUVERTURE</span></div>
-        <div class="step-visual">
-          <div class="viz-mini">
-            <div class="line"><span>Produit</span><span>1 L</span></div>
-            <div class="line"><span>Volume cible</span><span>175</span></div>
-            <div class="bar"></div>
-            <div class="line"><span>Fenêtre</span><span>72h</span></div>
-            <div class="line"><span>État</span><span>● actif</span></div>
-          </div>
+    <p class="eyebrow">Fonctionnement</p>
+    <h2>Trois étapes, aucun intermédiaire.</h2>
+    <ol class="steps">
+      <li>
+        <div>
+          <h3>Une commande groupée s'ouvre</h3>
+          <p>Un produit, un fabricant français, une fenêtre de quelques jours. Tu réserves ta part et tu paies.</p>
         </div>
-        <h3>Une commande<br>groupée s'ouvre.</h3>
-        <p>Fenêtre rapide. Quantité cible affichée. Tu valides et tu paies. Si on n'atteint pas le seuil, tu es remboursé·e à l'euro près.</p>
-        <div class="footnote">72 H — RÉSERVATION SOUPLE</div>
-      </div>
-
-      <div class="step-card reveal reveal-delay-1">
-        <div class="step-num"><span>02</span><span>RASSEMBLEMENT</span></div>
-        <div class="step-visual">
-          <div class="viz-dots" id="dots-viz"></div>
+      </li>
+      <li>
+        <div>
+          <h3>On attend le volume cible</h3>
+          <p>Si on est assez nombreux, la commande part. Sinon, tu es remboursé·e à l'euro près, sans frais ni délai.</p>
         </div>
-        <h3>Les voisins<br>rejoignent en 48 h.</h3>
-        <p>Quand le volume est atteint (les 175 commandes), la commande est confirmée. Sinon, le tour s'annule sans frais.</p>
-        <div class="footnote">SEUIL ATTEINT → CONFIRMÉ</div>
-      </div>
-
-      <div class="step-card reveal reveal-delay-2">
-        <div class="step-num"><span>03</span><span>LIVRAISON</span></div>
-        <div class="step-visual">
-          <div class="viz-truck">
-            <svg viewBox="0 0 64 32" fill="none" stroke="currentColor" stroke-width="1.4">
-              <rect x="2" y="8" width="32" height="16" rx="1"/>
-              <path d="M34 12h14l8 8v4H34z"/>
-              <circle cx="14" cy="26" r="3.5" fill="white"/>
-              <circle cx="46" cy="26" r="3.5" fill="white"/>
-              <path d="M14 26l32 0" stroke-dasharray="2 3" opacity="0.4"/>
-            </svg>
-          </div>
+      </li>
+      <li>
+        <div>
+          <h3>Livraison directe</h3>
+          <p>Un seul camion, du fabricant au point relais ou à ton adresse. Pas de stock intermédiaire.</p>
         </div>
-        <h3>Livraison directe<br>usine → toi.</h3>
-        <p>Un seul transport mutualisé. Tu reçois ta commande en point relais ou à domicile. Pas de stockage intermédiaire.</p>
-        <div class="footnote">EMPREINTE ─ 64% RÉDUITE</div>
-      </div>
-    </div>
-
-    <div class="product-card reveal">
-      <div>
-        <div class="meta">EXEMPLE • COMMANDE OUVERTE</div>
-        <div class="name">Liquide vaisselle 1 L</div>
-        <div style="font-size: 12.5px; color: var(--ink-muted); margin-top: 8px;">Fabriqué en Île-de-France · Sans tensioactifs sulfatés</div>
-      </div>
-      <div class="price-old">4,90 €</div>
-      <div class="price-new">2,40 €</div>
-    </div>
-    <div class="product-footer">L'OFFRE BASCULE SUR UN PROFIT DE RÉFÉRENCE. LES PRIX VARIENT SELON LE LOT, LE FABRICANT, ET LA DEMANDE.</div>
+      </li>
+    </ol>
   </div>
 </section>
 
-<!-- MARGINS -->
-<section class="margins">
+<section>
   <div class="container">
-    <div class="sec-head">
-      <div>
-        <div class="eyebrow reveal">03 — Pourquoi c'est moins cher</div>
-        <h2 class="sec reveal">Chaque intermédiaire<br>ajoute sa marge.</h2>
-      </div>
-      <div class="sec-meta reveal reveal-delay-1">Le produit ménager moyen en supermarché passe par trois à quatre intermédiaires entre l'usine et toi. Chacun prend la sienne. Logique : ils existent pour ça.</div>
-    </div>
-
-    <div class="margins-grid">
-      <div class="panel reveal">
-        <div class="panel-title">CIRCUIT ACTUEL</div>
-        <div class="panel-h">Du fabricant au rayon de supermarché.</div>
-        <div class="slider-row">
-          <span class="slider-label">Usine</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 18%"></div>
-            <div class="slider-thumb" style="left: 18%"></div>
-          </div>
-          <span class="slider-val">coût + 4%</span>
-        </div>
-        <div class="slider-row">
-          <span class="slider-label">Grossiste</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 38%"></div>
-            <div class="slider-thumb" style="left: 38%"></div>
-          </div>
-          <span class="slider-val">+ marge</span>
-        </div>
-        <div class="slider-row">
-          <span class="slider-label">Distributeur</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 58%"></div>
-            <div class="slider-thumb" style="left: 58%"></div>
-          </div>
-          <span class="slider-val">+ marge</span>
-        </div>
-        <div class="slider-row">
-          <span class="slider-label">Enseigne</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 78%"></div>
-            <div class="slider-thumb" style="left: 78%"></div>
-          </div>
-          <span class="slider-val">+ marge</span>
-        </div>
-        <div class="slider-row">
-          <span class="slider-label">Rayon</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 100%"></div>
-            <div class="slider-thumb" style="left: 100%"></div>
-          </div>
-          <span class="slider-val">prix final</span>
-        </div>
-        <div class="total">
-          <span class="total-label">Prix consommateur</span>
-          <span class="total-val">4,90 €</span>
-        </div>
-        <div class="panel-note">À chaque étape, une marge s'ajoute. C'est mécanique, pas malveillant — mais c'est toi qui paies l'addition.</div>
-      </div>
-
-      <div class="panel dark reveal reveal-delay-1">
-        <div class="panel-title">CIRCUIT PRIXY</div>
-        <div class="panel-h">Du fabricant à toi, en une seule expédition.</div>
-        <div class="slider-row">
-          <span class="slider-label">Usine</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 35%"></div>
-            <div class="slider-thumb" style="left: 35%"></div>
-          </div>
-          <span class="slider-val">coût + marge fabricant</span>
-        </div>
-        <div class="panel highlight">
-          <span class="lbl">PRIXY · 4% sur la commande</span>
-          <span class="val">2,40 €</span>
-        </div>
-        <div class="slider-row">
-          <span class="slider-label">Toi</span>
-          <div class="slider-track">
-            <div class="slider-fill" style="width: 49%"></div>
-            <div class="slider-thumb" style="left: 49%"></div>
-          </div>
-          <span class="slider-val">prix groupé</span>
-        </div>
-        <div class="total">
-          <span class="total-label">Prix consommateur</span>
-          <span class="total-val">2,40 €</span>
-        </div>
-        <div class="panel-note">PRIXY se rémunère sur une commission transparente — pas par un margement empilé. Le fabricant garde sa marge ; toi tu gardes la moitié de la facture.</div>
-      </div>
-    </div>
+    <p class="eyebrow">Pourquoi c'est moins cher</p>
+    <h2>Chaque intermédiaire ajoute sa marge.</h2>
+    <p style="margin-top:16px;">Entre l'usine et le rayon, le produit passe par un grossiste, un distributeur, l'enseigne. Chacun prend sa part. C'est mécanique. En achetant en groupe directement au fabricant, on supprime ces étapes.</p>
+    <ul class="bullets">
+      <li><span><strong>Fabricant français.</strong> Tu paies le coût de production plus la marge de l'usine, point.</span></li>
+      <li><span><strong>Commission transparente.</strong> Prixy retient 4 % sur le total de la commande. C'est tout.</span></li>
+      <li><span><strong>Aucun stock.</strong> On ne possède rien, on coordonne. Pas d'entrepôt à amortir.</span></li>
+      <li><span><strong>Remboursement garanti.</strong> Si la commande n'atteint pas son seuil, tu récupères ton argent.</span></li>
+    </ul>
   </div>
 </section>
 
-<!-- CTA DARK -->
-<section class="cta-dark" id="lancement">
-  <div class="aurora-dark"></div>
-  <div class="particles" id="particles"></div>
+<section>
   <div class="container">
-    <div class="cta-grid">
-      <div>
-        <div class="eyebrow reveal">04 — Liste d'attente</div>
-        <h2 class="reveal">Je veux être prévenu·e<br>au lancement.</h2>
-        <p class="reveal reveal-delay-1">Aucun spam, juste un email quand la première commande groupée s'ouvre dans ta zone. Tu peux te désinscrire en un clic.</p>
+    <p class="eyebrow">Catégories au lancement</p>
+    <h2>Qu'est-ce qui t'intéresse en premier ?</h2>
+    <p style="margin-top:16px;">On commence par les produits du quotidien. Sélectionne les catégories qui te parlent, ça nous aide à prioriser.</p>
+    <div class="cats" id="cats">
+      <button type="button" class="cat">Entretien maison</button>
+      <button type="button" class="cat">Lessive et linge</button>
+      <button type="button" class="cat">Hygiène et soin</button>
+      <button type="button" class="cat">Papier et essuie-tout</button>
+      <button type="button" class="cat">Épicerie sèche</button>
+      <button type="button" class="cat">Boissons</button>
+      <button type="button" class="cat">Bébé</button>
+      <button type="button" class="cat">Animaux</button>
+    </div>
+    <p class="cats-note">Tu peux en choisir plusieurs. On garde ton choix avec ton inscription juste en dessous.</p>
+  </div>
+</section>
 
-        <div class="counter reveal reveal-delay-2">
-          <div>
-            <div class="counter-num" id="counter-num">0</div>
-            <div class="counter-label">Sur la liste / 1 000 places</div>
-          </div>
-          <div class="counter-bar">
-            <div class="counter-fill" id="counter-fill"></div>
-          </div>
-        </div>
-        <div class="counter-info">
-          <span>Inscription gratuite</span>
-          <span>Sans engagement</span>
-        </div>
-      </div>
-
-      <form class="form-fields reveal reveal-delay-1" onsubmit="event.preventDefault(); this.querySelector('.submit-dark').innerHTML='✓ Inscrit·e — à très vite';">
-        <div class="field-row">
-          <div class="field">
-            <label>Prénom</label>
-            <input type="text" placeholder="Camille">
-          </div>
-          <div class="field">
-            <label>Région</label>
-            <input type="text" placeholder="Île-de-France">
-          </div>
+<section id="inscription">
+  <div class="container">
+    <p class="eyebrow">Liste d'attente</p>
+    <h2>Préviens-moi au lancement.</h2>
+    <p style="margin-top:16px;">Aucun spam. Un email quand la première commande groupée s'ouvre dans ta zone. Désinscription en un clic.</p>
+    <form class="signup" id="signup">
+      <div class="row-2">
+        <div class="field">
+          <label for="prenom">Prénom</label>
+          <input class="input" type="text" id="prenom" name="prenom" placeholder="Camille" required>
         </div>
         <div class="field">
-          <label>Email</label>
-          <input type="email" placeholder="ton@exemple.fr">
+          <label for="cp">Code postal</label>
+          <input class="input" type="text" id="cp" name="cp" placeholder="77700" required inputmode="numeric">
         </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Code postal</label>
-            <input type="text" placeholder="77700">
-          </div>
-          <div class="field">
-            <label>Foyer (personnes)</label>
-            <input type="number" placeholder="3" min="1">
-          </div>
-        </div>
-        <label class="checkbox-row">
-          <input type="checkbox" required>
-          <span>J'accepte de recevoir un email lorsque PRIXY se lancera dans ma zone. Je peux me désinscrire à tout moment.</span>
-        </label>
-        <button type="submit" class="submit-dark">
-          Je veux être prévenu·e au lancement
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </button>
-        <div class="form-foot">RGPD · DONNÉES STOCKÉES EN FRANCE</div>
-      </form>
-    </div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input class="input" type="email" id="email" name="email" placeholder="toi@exemple.fr" required>
+      </div>
+      <label class="check-row">
+        <input type="checkbox" required>
+        <span>J'accepte de recevoir un email quand Prixy se lance dans ma zone. Je peux me désinscrire à tout moment.</span>
+      </label>
+      <button type="submit" class="btn-primary" style="margin-top:8px;">M'inscrire à la liste</button>
+      <p class="form-note">Données stockées en France. Conforme RGPD.</p>
+    </form>
+    <div class="form-success" id="form-success">Merci. Tu es sur la liste. On t'écrit dès qu'une commande s'ouvre près de chez toi.</div>
   </div>
 </section>
 
-<!-- FEEDBACK -->
-<section class="feedback">
+<section>
   <div class="container">
-    <div class="feedback-grid">
-      <div>
-        <div class="eyebrow reveal">05 — Ton retour</div>
-        <h2 class="sec reveal">Dis-nous ce que<br>tu en penses.</h2>
-        <p class="reveal reveal-delay-1" style="margin-top: 24px; font-size: 15px; color: var(--ink-soft); max-width: 380px;">Quels produits aimerais-tu voir en commande groupée ? Qu'est-ce qui te bloque ? On lit tout, on répond sous 48 h, sans automatisation.</p>
-      </div>
-      <form class="feedback-form reveal reveal-delay-1" onsubmit="event.preventDefault(); this.querySelector('.submit-light').innerHTML='✓ Reçu — merci pour le retour';">
-        <div class="feedback-field">
-          <label><span>Ton message</span><span>OPTIONNEL</span></label>
-          <textarea placeholder="Produits qui t'intéressent, remarques, critiques, idées..."></textarea>
-        </div>
-        <div class="feedback-field">
-          <label><span>Email</span><span>POUR LA RÉPONSE</span></label>
-          <input type="email" placeholder="ton@exemple.fr">
-        </div>
-        <button type="submit" class="submit-light">
-          Envoyer
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </button>
-        <div class="feedback-foot">NOUS LISONS CHAQUE MESSAGE — RÉPONSE SOUS 48 H</div>
-      </form>
-    </div>
-  </div>
-</section>
-
-<div class="divider"><span class="glyph">⊕</span></div>
-
-<!-- FAQ -->
-<section class="faq" id="faq">
-  <div class="container">
-    <div class="sec-head">
-      <div>
-        <div class="eyebrow reveal">06 — On répond</div>
-        <h2 class="sec reveal">Les questions<br>qu'on nous pose.</h2>
-      </div>
-      <div class="sec-meta reveal reveal-delay-1">Si quelque chose manque, écris-nous dans la section commentaires juste au-dessus.</div>
-    </div>
-
+    <p class="eyebrow">Questions fréquentes</p>
+    <h2>Ce qu'on nous demande le plus.</h2>
     <div class="faq-list">
-      <div class="faq-item" data-faq>
-        <div class="faq-q">
+      <div class="faq-item">
+        <button class="faq-q" type="button">
           <span>C'est légal ?</span>
-          <div class="faq-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Oui. Prixy est une société française qui coordonne des achats groupés. C'est un mécanisme reconnu par le Code de la consommation. Les fabricants restent libres de leur tarif, tu restes libre de réserver ou non.</p>
         </div>
-        <div class="faq-a">Oui. PRIXY est une SASU enregistrée en France, conforme à la DGCCRF et au Code de la consommation. Les commandes groupées sont un mécanisme reconnu (article L121-11 du Code de la consommation pour les ventes en gros à consommateurs).</div>
       </div>
-
-      <div class="faq-item" data-faq>
-        <div class="faq-q">
-          <span>Pourquoi les marques accepteraient ?</span>
-          <div class="faq-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Pourquoi les fabricants accepteraient ?</span>
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Parce qu'on leur garantit du volume sans coût d'acquisition. Pour un fabricant régional, expédier un gros lot à un seul point de livraison est plus rentable que d'écouler par plusieurs grossistes.</p>
         </div>
-        <div class="faq-a">Parce qu'on leur garantit du volume sans coût d'acquisition. Pour un fabricant régional, vendre 175 unités d'un coup à un seul point de livraison est plus rentable que d'écouler par 4 grossistes. Ils gardent leur marge fabricant ; on supprime les autres.</div>
       </div>
-
-      <div class="faq-item" data-faq>
-        <div class="faq-q">
-          <span>Quelle qualité ?</span>
-          <div class="faq-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Quels produits, quelle qualité ?</span>
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Des produits du quotidien fabriqués en France, avec compositions traçables. La liste des fabricants partenaires sera publique au lancement.</p>
         </div>
-        <div class="faq-a">Les mêmes produits qu'en grande distribution, parfois fabriqués par les mêmes usines. On ne sélectionne que des fabricants français avec compositions traçables. Liste publique des partenaires au lancement.</div>
       </div>
-
-      <div class="faq-item" data-faq>
-        <div class="faq-q">
-          <span>Quand vous lancez ?</span>
-          <div class="faq-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
-        </div>
-        <div class="faq-a">Première commande pilote prévue Mai 2026 en Île-de-France (Seine-et-Marne et 77 limitrophes). Extension nationale prévue Q3 2026 selon la traction. Inscris-toi pour être prévenu·e en priorité.</div>
-      </div>
-
-      <div class="faq-item" data-faq>
-        <div class="faq-q">
+      <div class="faq-item">
+        <button class="faq-q" type="button">
           <span>Comment je suis livré·e ?</span>
-          <div class="faq-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>En point relais ou à domicile. Le transport est mutualisé sur la même tournée pour toute la zone, c'est ce qui permet de garder le coût bas.</p>
         </div>
-        <div class="faq-a">Au choix : point relais (gratuit, dans tous les commerces partenaires Mondial Relay / Relais Colis), ou à domicile (3,90 € par commande, transport mutualisé sur le même camion pour tout le quartier).</div>
       </div>
-
-      <div class="faq-item" data-faq>
-        <div class="faq-q">
-          <span>Et si la commande groupée n'atteint pas le minimum ?</span>
-          <div class="faq-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Et si la commande n'atteint pas le seuil ?</span>
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Tu es remboursé·e intégralement sous quelques jours ouvrés. Aucun frais retenu, aucune pénalité. Tu peux retenter au tour suivant.</p>
         </div>
-        <div class="faq-a">Tu es remboursé·e intégralement sous 5 jours ouvrés. Aucun frais retenu, aucune pénalité. La commande est simplement annulée et tu peux retenter au tour suivant.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">
+          <span>Quand est-ce que ça démarre ?</span>
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Première commande pilote prévue en mai 2026 en Île-de-France. Extension nationale ensuite, en fonction de la demande.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
+<footer class="site">
   <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="brand">
-          <span class="brand-dot"></span>
-          <span>PRIXY</span>
-        </div>
-        <p>Le pouvoir d'achat collectif. Une SASU française, basée à Chessy (77).</p>
-        <div class="social-row">
-          <a href="#" class="social">𝕏</a>
-          <a href="#" class="social">in</a>
-          <a href="#" class="social">ig</a>
-          <a href="#" class="social">tt</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Produit</h4>
-        <a href="#etapes">Comment ça marche</a>
-        <a href="#concept">Produits proposés</a>
-        <a href="#faq">FAQ</a>
-      </div>
-      <div class="footer-col">
-        <h4>À propos</h4>
-        <a href="#">Notre mission</a>
-        <a href="#">Fabricants partenaires</a>
-        <a href="#">Politique de confidentialité</a>
-      </div>
-      <div class="footer-col">
-        <h4>Contact</h4>
-        <a href="mailto:hello@prixy.fr">hello@prixy.fr</a>
-        <a href="#">Presse</a>
-        <a href="#">Recrutement</a>
-        <a href="#">RGPD — Données EU</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 PRIXY · TOUS DROITS RÉSERVÉS</span>
-      <span>V1.0 · BUILT BY ONE HUMAN</span>
-    </div>
+    <span>© 2026 Prixy</span>
+    <span>Fait en France 🇫🇷</span>
   </div>
 </footer>
 
 <script>
-  // SCROLL REVEAL
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('is-visible');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-  // DOTS STAGGERED FILL
-  const dotsViz = document.getElementById('dots-viz');
-  if (dotsViz) {
-    const cols = 10, rows = 4;
-    for (let i = 0; i < cols * rows; i++) {
-      const d = document.createElement('div');
-      d.className = 'd';
-      dotsViz.appendChild(d);
-    }
-    const dotsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const dots = dotsViz.querySelectorAll('.d');
-          dots.forEach((d, idx) => {
-            setTimeout(() => {
-              if (Math.random() > 0.25) d.classList.add('on');
-            }, idx * 25);
-          });
-          dotsObserver.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    dotsObserver.observe(dotsViz);
-  }
-
-  // COUNTER ANIMATION
-  const counterNum = document.getElementById('counter-num');
-  const counterFill = document.getElementById('counter-fill');
-  if (counterNum) {
-    const target = 437;
-    const counterObserver = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          let current = 0;
-          const duration = 1800;
-          const start = performance.now();
-          const tick = (now) => {
-            const t = Math.min((now - start) / duration, 1);
-            // ease out cubic
-            const eased = 1 - Math.pow(1 - t, 3);
-            counterNum.textContent = Math.floor(eased * target);
-            if (t < 1) requestAnimationFrame(tick);
-            else counterNum.textContent = target;
-          };
-          requestAnimationFrame(tick);
-          counterFill.style.width = (target / 1000 * 100) + '%';
-          counterObserver.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    counterObserver.observe(counterNum);
-  }
-
-  // FAQ ACCORDION
-  document.querySelectorAll('[data-faq]').forEach(item => {
-    item.addEventListener('click', () => {
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    q.addEventListener('click', () => {
       const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('[data-faq]').forEach(i => i.classList.remove('open'));
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
       if (!wasOpen) item.classList.add('open');
     });
   });
 
-  // PARALLAX MOCKUP (subtle)
-  const mockup = document.querySelector('.mockup');
-  if (mockup) {
-    document.addEventListener('mousemove', (e) => {
-      if (window.innerWidth < 900) return;
-      const x = (e.clientX / window.innerWidth - 0.5) * 6;
-      const y = (e.clientY / window.innerHeight - 0.5) * 4;
-      mockup.style.transform = `rotateY(${-3 + x}deg) rotateX(${2 - y}deg)`;
-    });
-  }
-
-  // ── CHAR-BY-CHAR REVEAL on H1
-  const h1 = document.querySelector('h1.display');
-  if (h1) {
-    const wrap = (node, baseDelay) => {
-      const frag = document.createDocumentFragment();
-      let i = baseDelay;
-      node.childNodes.forEach(child => {
-        if (child.nodeType === Node.TEXT_NODE) {
-          [...child.textContent].forEach(ch => {
-            if (ch === ' ') {
-              frag.appendChild(document.createTextNode(' '));
-            } else {
-              const span = document.createElement('span');
-              span.className = 'char';
-              span.textContent = ch;
-              span.style.animationDelay = (i * 0.028 + 0.15) + 's';
-              frag.appendChild(span);
-              i++;
-            }
-          });
-        } else if (child.nodeName === 'BR') {
-          frag.appendChild(document.createElement('br'));
-        } else if (child.nodeName === 'EM') {
-          const em = document.createElement('em');
-          em.style.fontStyle = 'italic';
-          [...child.textContent].forEach(ch => {
-            if (ch === ' ') {
-              em.appendChild(document.createTextNode(' '));
-            } else {
-              const span = document.createElement('span');
-              span.className = 'char';
-              span.textContent = ch;
-              span.style.animationDelay = (i * 0.028 + 0.15) + 's';
-              em.appendChild(span);
-              i++;
-            }
-          });
-          frag.appendChild(em);
-        }
-      });
-      return frag;
-    };
-    const newContent = wrap(h1, 0);
-    h1.innerHTML = '';
-    h1.appendChild(newContent);
-  }
-
-  // ── TICKER (infinite marquee)
-  const ticker = document.getElementById('ticker-track');
-  if (ticker) {
-    const items = [
-      ['Liquide vaisselle', '−51%'],
-      ['Lessive 3 L', '−47%'],
-      ['Nettoyant multi-surfaces', '−53%'],
-      ['Adoucissant', '−44%'],
-      ['Papier toilette ×24', '−39%'],
-      ['Savon de Marseille', '−58%'],
-      ['Spray vitres', '−49%'],
-      ['Pastilles lave-vaisselle', '−42%'],
-      ['Éponges ×10', '−55%'],
-    ];
-    const build = () => items.map(([n, p]) =>
-      `<span>${n}</span><em>${p}</em><span class="ticker-dot"></span>`
-    ).join('');
-    ticker.innerHTML = build() + build();
-  }
-
-  // ── PARTICLES in dark CTA
-  const particles = document.getElementById('particles');
-  if (particles) {
-    for (let i = 0; i < 28; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      p.style.left = Math.random() * 100 + '%';
-      p.style.animationDuration = (8 + Math.random() * 14) + 's';
-      p.style.animationDelay = (-Math.random() * 20) + 's';
-      p.style.opacity = (0.4 + Math.random() * 0.5);
-      p.style.transform = `scale(${0.5 + Math.random() * 1.6})`;
-      particles.appendChild(p);
-    }
-  }
-
-  // ── CURSOR GLOW
-  const cursorGlow = document.getElementById('cursor-glow');
-  if (cursorGlow && window.innerWidth >= 900) {
-    let tx = 0, ty = 0, cx = 0, cy = 0;
-    document.body.classList.add('cursor-active');
-    document.addEventListener('mousemove', (e) => {
-      tx = e.clientX; ty = e.clientY;
-    });
-    const animate = () => {
-      cx += (tx - cx) * 0.14;
-      cy += (ty - cy) * 0.14;
-      cursorGlow.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
-      requestAnimationFrame(animate);
-    };
-    animate();
-  }
-
-  // ── SCROLL PROGRESS BAR
-  const sp = document.getElementById('scroll-progress');
-  if (sp) {
-    const onScroll = () => {
-      const h = document.documentElement;
-      const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-      sp.style.width = pct + '%';
-    };
-    document.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
-
-  // ── 3D TILT on step cards
-  document.querySelectorAll('.step-card').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      if (window.innerWidth < 900) return;
-      const r = card.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform = `perspective(900px) rotateY(${px * 6}deg) rotateX(${-py * 6}deg) translateY(-4px)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-    });
+  // Category toggles
+  document.querySelectorAll('.cat').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('active'));
   });
 
-  // ── MAGNETIC BUTTON glow tracking
-  document.querySelectorAll('.hero-cta, .submit-dark').forEach(btn => {
-    btn.addEventListener('mousemove', (e) => {
-      const r = btn.getBoundingClientRect();
-      btn.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-      btn.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  // Form submit
+  const form = document.getElementById('signup');
+  const success = document.getElementById('form-success');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      form.style.display = 'none';
+      success.classList.add('show');
     });
-  });
+  }
 </script>
 
 </body>
