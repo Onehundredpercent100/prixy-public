@@ -6,7 +6,7 @@
 <title>PRIXY — Le pouvoir d'achat collectif</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&family=Archivo+Black&display=swap" rel="stylesheet" />
 
 <!-- ============================================================
      1) colors_and_type.css (tokens — orange → violet)
@@ -667,6 +667,12 @@ footer.foot p{ color:rgba(255,255,255,.55); font-size:14px; margin-top:8px; max-
   color:rgba(255,255,255,.4); }
 
 section, header, footer, .marquee, .chapters, .hero-card, .step, .live, .chain, details.faq-item, .form, .form-confirm, .sticky-cta { position:relative; z-index:2; }
+
+/* Méga mots du footer : cachés en desktop, affichés en mobile via le bloc @media */
+footer.foot .foot-mega-stack{ display:none; }
+@media (max-width: 720px){
+  footer.foot .foot-mega-stack{ display:flex; }
+}
 </style>
 
 <!-- ============================================================
@@ -958,6 +964,182 @@ details.faq-item:hover{ background:color-mix(in srgb,var(--accent) 4%, transpare
 
 /* utility — empêche scroll pendant que le preloader masque la page */
 body.preloading{ overflow:hidden; }
+
+/* ─────────────────────────────────────────────────────────────
+   9) Mobile ≤ 720 px — refonte style eis-lab
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 720px){
+  /* Crème en fond, comme eis-lab */
+  html, body{ background:#F6F1E7; }
+  body::before{ opacity:.025; }
+  .section--alt{ background:#EFE9DB; }
+
+  /* Nav : minimaliste — uniquement le logo + bouton MENU */
+  header.nav{ padding:14px 18px; mix-blend-mode:normal; }
+  header.nav.scrolled{
+    background:color-mix(in srgb, #F6F1E7 90%, transparent);
+    border-bottom-color:rgba(10,10,10,.08);
+  }
+  .nav-cta{
+    background:transparent; color:var(--ink);
+    border:1.5px solid var(--ink); border-radius:6px;
+    text-transform:uppercase; font-weight:700; letter-spacing:.04em;
+    padding:8px 14px; font-size:11px;
+  }
+  .nav-cta:hover{ filter:none; background:var(--ink); color:#F6F1E7; }
+  .nav-cta::before{ display:none; }
+
+  /* HERO — typo chunky en MAJUSCULES qui s'arque */
+  .hero{ padding:130px 18px 80px; min-height:auto; }
+  .hero h1{
+    font-family:'Archivo Black','Inter',sans-serif;
+    font-size:clamp(48px, 13.5vw, 80px);
+    line-height:.92;
+    letter-spacing:-.025em;
+    text-transform:uppercase;
+    color:#1A1340;          /* navy chunky comme eis-lab */
+  }
+  .hero h1 .hl-accent{
+    font-family:inherit;
+    background:var(--gradient);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  /* Per-word arc — JS pose .arced sur le H1, on lui donne du transform-style */
+  .hero h1.arced .headline-word{
+    display:inline-block;
+    transform-origin:center 60%;
+    transition:transform .9s cubic-bezier(.16,1,.3,1);
+  }
+
+  /* Sous-titre plus dense */
+  .hero-sub{ font-size:17px; color:#3a3344; margin-top:18px; }
+  .hero-cta-wrap{ margin-top:24px; flex-direction:column; gap:10px; width:100%; max-width:320px; margin-inline:auto; }
+  .hero-cta-wrap .cta{ width:100%; padding:16px 22px; }
+  .cta.cta-ghost{ border:1.5px solid #1A1340; color:#1A1340; }
+
+  /* Hero card plus discret */
+  .hero-card{
+    margin-top:40px;
+    border:1.5px solid rgba(26,19,64,.18);
+    background:#FBF7EE;
+    box-shadow:0 10px 30px -16px rgba(26,19,64,.18);
+    border-radius:14px;
+  }
+
+  /* H2 chunky pour toutes les sections */
+  .section-h h2{
+    font-family:'Archivo Black','Inter',sans-serif;
+    font-size:clamp(36px, 10.5vw, 64px);
+    line-height:.92;
+    letter-spacing:-.02em;
+    text-transform:uppercase;
+    color:#1A1340;
+  }
+  .section-h .eyebrow{ color:#1A1340; opacity:.55; }
+  .section-h .eyebrow::after{ background:#1A1340; }
+  .section-h p{ color:#3a3344; }
+
+  /* H2 en OUTLINE pour la section FAQ — comme "Become a franchise partner" */
+  #faq .section-h h2{
+    color:transparent;
+    -webkit-text-stroke:1.5px #1A1340;
+  }
+
+  /* Steps + chain + live : adoucir les bordures, fond crème uni */
+  .step, .chain, .live, .hero-card{
+    background:#FBF7EE;
+    border-color:rgba(26,19,64,.12);
+  }
+  .step-n{ background:#1A1340; color:#F6F1E7; font-family:'Archivo Black',sans-serif; }
+  .step-n[style], .step .step-n{ background:#1A1340; }
+  /* (on garde le gradient seulement sur la CTA + hl-accent + bar live) */
+
+  .link-node{ background:#EFE9DB; border-color:rgba(26,19,64,.12); }
+  .link-arrow{ color:#1A1340; opacity:.4; }
+
+  /* FAQ — texte plus aéré */
+  .faq-q h3{ font-family:'Inter',sans-serif; font-size:17px; }
+  details.faq-item:hover{ background:rgba(26,19,64,.04); }
+
+  /* Forms — labels chunky */
+  .form label{
+    font-family:'Archivo Black','Inter',sans-serif;
+    text-transform:uppercase; letter-spacing:.06em;
+    color:#1A1340; font-size:11px;
+  }
+  .form input, .form textarea{
+    background:#FBF7EE; border-color:rgba(26,19,64,.18);
+    border-radius:10px;
+  }
+  .form-cta{
+    background:#1A1340; color:#F6F1E7;
+    text-transform:uppercase; letter-spacing:.06em;
+    border-radius:10px; font-family:'Archivo Black',sans-serif;
+  }
+  .form-cta:hover{ filter:brightness(1.1); }
+  /* (la version gradient est conservée en desktop) */
+
+  /* FOOTER — méga mots empilés, comme CONTACT/FRANCHISE/ABOUT chez eis-lab */
+  footer.foot{
+    background:#1A1340; color:#F6F1E7;
+    padding:64px 22px 28px;
+  }
+  footer.foot .foot-inner{
+    flex-direction:column; gap:28px;
+  }
+  footer.foot .foot-mega-stack{
+    display:flex; flex-direction:column;
+    margin-bottom:8px;
+  }
+  footer.foot .foot-mega{
+    font-family:'Archivo Black','Inter',sans-serif;
+    font-size:clamp(48px, 18vw, 96px);
+    line-height:.86;
+    letter-spacing:-.025em;
+    text-transform:uppercase;
+    color:#F6F1E7;
+    text-decoration:none;
+    display:block;
+    transition:transform .35s var(--ease-out-expo), color .25s ease;
+  }
+  footer.foot .foot-mega:hover{
+    transform:translateX(8px);
+    background:var(--gradient);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  footer.foot .foot-brand{ font-size:14px; opacity:.9; }
+  footer.foot .foot-brand .mark{ background:var(--gradient); }
+  footer.foot p{ color:rgba(246,241,231,.55); }
+  .foot-col{ flex-direction:column; gap:6px; }
+  .foot-col strong{ color:rgba(246,241,231,.4) !important; font-size:11px !important;
+    letter-spacing:.06em; text-transform:uppercase; font-family:'Archivo Black',sans-serif; }
+  .foot-col a{ color:rgba(246,241,231,.8); font-size:14px; }
+  .foot-bottom{
+    border-top-color:rgba(246,241,231,.1);
+    color:rgba(246,241,231,.4);
+  }
+
+  /* Sticky CTA mobile : chunky, fond noir */
+  .sticky-cta{
+    background:#1A1340; color:#F6F1E7;
+    border-radius:12px;
+    text-transform:uppercase; letter-spacing:.04em;
+    font-family:'Archivo Black','Inter',sans-serif;
+    font-size:12px;
+  }
+  .sticky-cta.visible{ animation:none; }
+
+  /* Marquee : chunky aussi */
+  .marquee{ font-family:'Archivo Black','Inter',sans-serif;
+    font-size:11px; letter-spacing:.06em; }
+
+  /* On atténue la sticky hero scroll-driven (trop intense en mobile) */
+  @supports (animation-timeline: view()){
+    .hero h1{ animation:none; }
+    .hero-card{ animation:none; }
+    .hero-sub, .hero-cta-wrap, .hero-helper{ animation:none; }
+  }
+}
 </style>
 </head>
 <body>
@@ -1291,6 +1473,13 @@ body.preloading{ overflow:hidden; }
 
 <!-- Footer -->
 <footer class="foot">
+  <!-- Méga mots empilés — visible mobile uniquement, masqués en desktop -->
+  <div class="foot-mega-stack" style="max-width:var(--container-max); margin:0 auto 28px;">
+    <a href="#waitlist" class="foot-mega">Waitlist</a>
+    <a href="#how" class="foot-mega">Comment</a>
+    <a href="#faq" class="foot-mega">FAQ</a>
+    <a href="#feedback" class="foot-mega">Contact</a>
+  </div>
   <div class="foot-inner">
     <div>
       <a href="#" class="foot-brand"><span class="foot-flag">🇫🇷</span><span class="mark"></span>PRIXY</a>
@@ -2063,6 +2252,41 @@ body.preloading{ overflow:hidden; }
         setTimeout(schedule, 5000);
       });
     }, 2500);
+  });
+
+  /* ── Arc du H1 hero — mobile uniquement (style eis-lab) ─── */
+  function applyArc(){
+    if (!window.matchMedia('(max-width: 720px)').matches) return;
+    const h1 = document.querySelector('.hero h1');
+    if (!h1) return;
+    const words = h1.querySelectorAll('.headline-word');
+    const n = words.length;
+    if (!n) return;
+    h1.classList.add('arced');
+    // Bell-shaped arc : mots du bord rotés vers l'extérieur, mots du centre relevés
+    const arcMax = 7;       // degrés
+    const liftMax = 8;      // px
+    words.forEach((w, i) => {
+      const t = n === 1 ? 0.5 : i / (n - 1);
+      const angle = (t - 0.5) * 2 * arcMax;
+      const lift  = -Math.sin(t * Math.PI) * liftMax;
+      w.style.transform = `translateY(${lift}px) rotate(${angle}deg)`;
+    });
+  }
+  // Wait for initHeadline() to have split + revealed the words first
+  window.addEventListener('load', () => setTimeout(applyArc, 1400));
+  // Re-apply on resize (orientation change)
+  let resizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      const h1 = document.querySelector('.hero h1.arced');
+      if (h1){
+        h1.classList.remove('arced');
+        h1.querySelectorAll('.headline-word').forEach(w => { w.style.transform = ''; });
+      }
+      applyArc();
+    }, 200);
   });
 })();
 </script>
