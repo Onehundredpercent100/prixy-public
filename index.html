@@ -847,9 +847,132 @@ details.faq-item:hover{ background:color-mix(in srgb,var(--accent) 4%, transpare
   0%,100% { transform:scale(1); filter:none; }
   50%     { transform:scale(1.08); filter:brightness(1.15); }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   5) Préloader / page intro (eis-lab style)
+   ───────────────────────────────────────────────────────────── */
+.prixy-preloader{
+  position:fixed; inset:0; z-index:200;
+  background:#0A0A0A;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:24px;
+  transform:translateY(0);
+  transition:transform .9s cubic-bezier(.76,0,.24,1) .2s,
+             opacity .4s ease .9s;
+}
+.prixy-preloader.gone{ transform:translateY(-100%); opacity:0; pointer-events:none; }
+.prixy-preloader-inner{
+  display:inline-flex; align-items:center; gap:12px;
+  color:#fff; font-family:var(--font-sans); font-weight:700;
+  letter-spacing:.02em; font-size:22px;
+  opacity:0; transform:translateY(8px);
+  animation:preloaderIntro .6s cubic-bezier(.16,1,.3,1) .15s forwards;
+}
+@keyframes preloaderIntro{ to{ opacity:1; transform:none; } }
+.prixy-preloader-mark{
+  display:inline-block; width:18px; height:18px; border-radius:4px;
+  background:var(--gradient);
+  animation:preloaderMark 1.3s cubic-bezier(.34,1.26,.64,1) infinite alternate;
+}
+@keyframes preloaderMark{
+  from{ transform:rotate(0) scale(1); }
+  to  { transform:rotate(90deg) scale(1.15); }
+}
+.prixy-preloader-bar{
+  width:160px; height:2px; background:rgba(255,255,255,.08);
+  border-radius:99px; overflow:hidden;
+}
+.prixy-preloader-bar > span{
+  display:block; height:100%; width:100%; background:var(--gradient);
+  transform:translateX(-100%);
+  animation:preloaderFill 1.1s cubic-bezier(.65,0,.35,1) .25s forwards;
+}
+@keyframes preloaderFill{ to{ transform:translateX(0); } }
+@media (prefers-reduced-motion: reduce){
+  .prixy-preloader{ display:none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6) Page-transition curtain (rideau au clic sur ancre interne)
+   ───────────────────────────────────────────────────────────── */
+.prixy-curtain{
+  position:fixed; inset:0; z-index:150;
+  background:var(--gradient);
+  transform:translateY(100%);
+  pointer-events:none;
+  will-change:transform;
+}
+.prixy-curtain.in{
+  transform:translateY(0);
+  transition:transform .42s cubic-bezier(.76,0,.24,1);
+}
+.prixy-curtain.out{
+  transform:translateY(-100%);
+  transition:transform .42s cubic-bezier(.76,0,.24,1);
+}
+@media (prefers-reduced-motion: reduce){
+  .prixy-curtain{ display:none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7) Sticky hero scroll storytelling (scroll-driven, progressive enhancement)
+   ───────────────────────────────────────────────────────────── */
+@supports (animation-timeline: view()){
+  .hero h1,
+  .hero-sub,
+  .hero-cta-wrap,
+  .hero-helper{
+    animation:heroRecede linear both;
+    animation-timeline:scroll(root);
+    animation-range:0 70vh;
+    will-change:transform, opacity, filter;
+  }
+  .hero-card{
+    animation:heroCardPin linear both;
+    animation-timeline:scroll(root);
+    animation-range:0 90vh;
+  }
+  @keyframes heroRecede{
+    to{ transform:translateY(-30px) scale(.96); opacity:.25; filter:blur(2px); }
+  }
+  @keyframes heroCardPin{
+    0%   { transform:translateY(0)   scale(1); }
+    60%  { transform:translateY(-40px) scale(.98); }
+    100% { transform:translateY(-80px) scale(.94); opacity:.55; }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8) Stat counters — animation discrète quand le bloc entre en vue
+   ───────────────────────────────────────────────────────────── */
+.chain-meter-label .total{
+  font-variant-numeric:tabular-nums;
+}
+.chain-meter-label .total[data-count-to]{
+  opacity:0; transform:translateY(6px);
+  transition:opacity .5s var(--ease-out-expo), transform .5s var(--ease-out-expo);
+}
+.chain.in .chain-meter-label .total[data-count-to]{
+  opacity:1; transform:none;
+}
+
+/* utility — empêche scroll pendant que le preloader masque la page */
+body.preloading{ overflow:hidden; }
 </style>
 </head>
 <body>
+
+<!-- Preloader (overlay plein écran qui se replie au load) -->
+<div class="prixy-preloader" id="prixy-preloader" aria-hidden="true">
+  <div class="prixy-preloader-inner">
+    <span class="prixy-preloader-mark"></span>
+    <span class="prixy-preloader-text">PRIXY</span>
+  </div>
+  <div class="prixy-preloader-bar"><span></span></div>
+</div>
+
+<!-- Page-transition curtain -->
+<div class="prixy-curtain" id="prixy-curtain" aria-hidden="true"></div>
 
 <!-- Marquee -->
 <div class="marquee">
@@ -1000,7 +1123,7 @@ details.faq-item:hover{ background:color-mix(in srgb,var(--accent) 4%, transpare
       <div class="chain-meter">
         <div class="chain-meter-label">
           <span>Marge cumulée</span>
-          <span class="total">+172 %</span>
+          <span class="total" data-count-to="172" data-count-prefix="+" data-count-suffix=" %">+172 %</span>
         </div>
         <div class="chain-meter-bar"><div class="chain-meter-fill"></div></div>
       </div>
@@ -1021,7 +1144,7 @@ details.faq-item:hover{ background:color-mix(in srgb,var(--accent) 4%, transpare
       <div class="chain-meter">
         <div class="chain-meter-label">
           <span>Marge cumulée</span>
-          <span class="total">+33 %</span>
+          <span class="total" data-count-to="33" data-count-prefix="+" data-count-suffix=" %">+33 %</span>
         </div>
         <div class="chain-meter-bar"><div class="chain-meter-fill"></div></div>
       </div>
@@ -1774,6 +1897,173 @@ details.faq-item:hover{ background:color-mix(in srgb,var(--accent) 4%, transpare
     document.addEventListener('DOMContentLoaded', boot);
   } else { boot(); }
   window.addEventListener('load', fireHero);
+})();
+</script>
+
+<!-- ============================================================
+     Extra motion : preloader, curtain, counters, +1 live ticks
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Preloader ───────────────────────────────────────────── */
+  const preloader = document.getElementById('prixy-preloader');
+  if (preloader && !reduce){
+    document.body.classList.add('preloading');
+    const hide = () => {
+      preloader.classList.add('gone');
+      document.body.classList.remove('preloading');
+      setTimeout(() => preloader.remove(), 1400);
+    };
+    // Wait for window.load + a small comfort delay so the gradient fill plays
+    window.addEventListener('load', () => setTimeout(hide, 1200));
+    // Fail-safe : never let the preloader trap the user
+    setTimeout(() => { if (document.body.contains(preloader)) hide(); }, 4500);
+  } else if (preloader){
+    preloader.remove();
+  }
+
+  /* ── Page-transition curtain on anchor clicks ────────────── */
+  const curtain = document.getElementById('prixy-curtain');
+  if (curtain && !reduce){
+    // Capture-phase listener — runs BEFORE the existing smoothScroll handler.
+    // We don't preventDefault here; we just play the curtain in parallel with
+    // the existing scroll tween so the two run together.
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const id = a.getAttribute('href');
+      if (id.length < 2) return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      curtain.classList.remove('out');
+      curtain.classList.add('in');
+      setTimeout(() => {
+        curtain.classList.remove('in');
+        curtain.classList.add('out');
+      }, 420);
+      setTimeout(() => { curtain.classList.remove('out'); }, 900);
+    }, true);
+  } else if (curtain){
+    curtain.remove();
+  }
+
+  /* ── Stat counters au scroll (chain totals) ──────────────── */
+  function animateCount(el){
+    if (reduce){ return; }
+    const to = parseFloat(el.dataset.countTo);
+    if (Number.isNaN(to)) return;
+    const prefix = el.dataset.countPrefix || '';
+    const suffix = el.dataset.countSuffix || '';
+    const dur = 1200;
+    const t0 = performance.now();
+    const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+    function frame(now){
+      const t = Math.min(1, (now - t0) / dur);
+      const v = Math.round(to * easeOut(t));
+      el.textContent = prefix + v + suffix;
+      if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  const countIo = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      animateCount(e.target);
+      countIo.unobserve(e.target);
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('[data-count-to]').forEach((el) => {
+    // Zero out before observing so the count-up starts from 0
+    if (!reduce){
+      const prefix = el.dataset.countPrefix || '';
+      const suffix = el.dataset.countSuffix || '';
+      el.textContent = prefix + '0' + suffix;
+    }
+    countIo.observe(el);
+  });
+
+  /* ── Caret + periodic +1 floater on the live widget ─────── */
+  // 1) Inject the blinking caret inside the hero-card "Commande #001"
+  document.querySelectorAll('.hero-card .hc-id').forEach((el) => {
+    if (el.querySelector('.caret')) return;
+    const c = document.createElement('span');
+    c.className = 'caret';
+    el.appendChild(c);
+  });
+  // 2) Inject the +1 floater into the live widget
+  document.querySelectorAll('.live[data-fire="live"]').forEach((live) => {
+    if (live.querySelector('.floater')) return;
+    const f = document.createElement('div');
+    f.className = 'floater';
+    f.textContent = '+1 nouvelle commande';
+    live.insertBefore(f, live.firstChild);
+  });
+  // 3) Periodically tick the live counter up (after the initial split-flap animation)
+  window.addEventListener('load', () => {
+    if (reduce) return;
+    setTimeout(() => {
+      document.querySelectorAll('.live[data-fire="live"]').forEach((live) => {
+        const nowEl = live.querySelector('[data-live-now]');
+        const fillEl = live.querySelector('.live-bar-fill');
+        const bar = live.querySelector('.live-bar');
+        const floater = live.querySelector('.floater');
+        const goal = parseInt(live.dataset.goal || '200', 10);
+        let current = parseInt(live.dataset.now || '134', 10);
+        if (!nowEl) return;
+
+        const setCounter = (value) => {
+          const flaps = [...nowEl.querySelectorAll('.flap')];
+          if (!flaps.length) return;
+          const digits = String(value).padStart(flaps.length, '0').split('');
+          digits.forEach((d, i) => {
+            const flap = flaps[i];
+            const col = flap.querySelector('.flap-col');
+            if (!col) return;
+            const delay = (flaps.length - 1 - i) * 70;
+            setTimeout(() => {
+              col.classList.add('go');
+              col.style.transform = `translateY(-${parseInt(d, 10)}em)`;
+            }, delay);
+          });
+        };
+
+        const tickUp = () => {
+          if (current >= goal) return;
+          current++;
+          setCounter(current);
+          if (fillEl && bar){
+            const pct = Math.min(1, current / goal);
+            fillEl.style.transform = `scaleX(${pct})`;
+            const glow = live.querySelector('.live-bar-glow');
+            if (glow){
+              const w = bar.getBoundingClientRect().width;
+              glow.style.transform = `translateX(${w * pct}px)`;
+            }
+          }
+          if (nowEl){
+            nowEl.classList.remove('tick-flash');
+            void nowEl.offsetWidth;
+            nowEl.classList.add('tick-flash');
+          }
+          if (floater){
+            floater.classList.remove('go');
+            void floater.offsetWidth;
+            floater.classList.add('go');
+          }
+        };
+
+        const schedule = () => {
+          const wait = 4200 + Math.random() * 4000;
+          setTimeout(() => { tickUp(); schedule(); }, wait);
+        };
+        // Let the initial split-flap roll-up land before we start ticking
+        setTimeout(schedule, 5000);
+      });
+    }, 2500);
+  });
 })();
 </script>
 </body>
