@@ -673,6 +673,100 @@ footer.foot .foot-mega-stack{ display:none; }
 @media (max-width: 720px){
   footer.foot .foot-mega-stack{ display:flex; }
 }
+
+/* ─── Section "Le premier poussin" ──────────────────────────── */
+#poussins{ background:#FBF7EE; }
+#poussins .section-h em{ font-style:normal; color:var(--accent); font-weight:600; }
+
+.poussins-figure{
+  max-width:560px; margin:0 auto;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  overflow:hidden;
+  padding:0;
+  position:relative;
+}
+.poussins-img{
+  display:block; width:100%; height:auto;
+}
+.poussins-fallback{
+  display:none;         /* devient block si l'image est absente (onerror JS) */
+  width:100%;
+}
+.poussin-svg{
+  display:block; width:100%; height:auto;
+  background:#F6F1E7;
+}
+
+/* Petits effets de vie sur le SVG fallback */
+.ps-leader{ animation:leaderStep 1.2s ease-in-out infinite; transform-origin:220px 205px; }
+@keyframes leaderStep{
+  0%,100% { transform:translateY(0) rotate(-1deg); }
+  50%     { transform:translateY(-2px) rotate(1deg); }
+}
+.ps-follow{ animation:followStep 1.2s ease-in-out infinite; transform-origin:center bottom; }
+.ps-f-1{ animation-delay:-.1s; } .ps-f-2{ animation-delay:-.3s; }
+.ps-f-3{ animation-delay:-.5s; } .ps-f-4{ animation-delay:-.7s; }
+@keyframes followStep{
+  0%,100% { transform:translateY(0); }
+  50%     { transform:translateY(-1.5px); }
+}
+.ps-sign{
+  transform-origin:285px 87px;
+  animation:signSway 3.4s ease-in-out infinite;
+}
+@keyframes signSway{
+  0%,100% { transform:rotate(-1.5deg); }
+  50%     { transform:rotate(1.5deg); }
+}
+
+.poussins-caption{
+  padding:18px 22px 20px;
+  border-top:1px dashed var(--line);
+  text-align:center;
+  background:#fff;
+}
+.poussins-quote{
+  font-family:var(--mono); font-size:13px; color:var(--muted);
+  font-style:italic;
+}
+
+/* Stats "chiffres du poussin" */
+.poussins-stats{
+  max-width:560px; margin:32px auto 0;
+  display:grid; grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+  text-align:center;
+}
+.poussins-stat{
+  padding:16px 8px;
+  border-top:1px solid var(--line);
+}
+.poussins-stat-n{
+  display:block;
+  font-family:'Archivo Black','Inter',sans-serif;
+  font-size:clamp(28px, 6vw, 44px);
+  line-height:1;
+  background:var(--gradient);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+}
+.poussins-stat-l{
+  display:block; margin-top:6px;
+  font-family:var(--mono); font-size:11px;
+  color:var(--muted); letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+/* Mini-mascotte poussin dans le nav (desktop + mobile) */
+.logo .poussin-mini{
+  display:inline-block; width:18px; height:18px;
+  margin-right:2px;
+  transition:transform var(--dur-short) var(--ease-back-soft);
+}
+.logo:hover .poussin-mini{ transform:rotate(-8deg) scale(1.1); }
 </style>
 
 <!-- ============================================================
@@ -1170,7 +1264,16 @@ body.preloading{ overflow:hidden; }
 
 <!-- Nav -->
 <header class="nav">
-  <a href="#" class="logo"><span class="mark"></span>PRIXY</a>
+  <a href="#" class="logo"><span class="poussin-mini" aria-hidden="true">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="12" cy="17" rx="7" ry="5" fill="#F7C948"/>
+    <circle cx="12" cy="10" r="6" fill="#F7C948"/>
+    <path d="M 6 7 q 6 -7 12 -1 l -2 1.5 q -4 -3 -8 0 z" fill="#C0392B"/>
+    <ellipse cx="12" cy="8.5" rx="6" ry="1" fill="#96271E"/>
+    <circle cx="14.5" cy="9.5" r=".9" fill="#14203D"/>
+    <path d="M 17 11 l 3 -.4 l -3 1.3 z" fill="#EA8B22"/>
+  </svg>
+</span>PRIXY</a>
   <nav class="nav-links">
     <a href="#how">Comment ça marche</a>
     <a href="#chain">La chaîne</a>
@@ -1183,6 +1286,7 @@ body.preloading{ overflow:hidden; }
 <!-- Chapter dots -->
 <aside class="chapters">
   <a href="#hero"><span class="ch-label">Intro</span><span class="ch-dot"></span></a>
+  <a href="#poussins"><span class="ch-label">Poussin</span><span class="ch-dot"></span></a>
   <a href="#how"><span class="ch-label">Comment</span><span class="ch-dot"></span></a>
   <a href="#chain"><span class="ch-label">Chaîne</span><span class="ch-dot"></span></a>
   <a href="#live"><span class="ch-label">Live</span><span class="ch-dot"></span></a>
@@ -1239,6 +1343,128 @@ body.preloading{ overflow:hidden; }
       </div>
     </article>
 
+  </div>
+</section>
+
+<!-- Poussins — narrative section -->
+<section class="block section" id="poussins">
+  <div class="container">
+    <div class="section-h reveal">
+      <span class="eyebrow">L'histoire</span>
+      <h2>Le premier poussin ouvre la marche</h2>
+      <p>Une commande PRIXY, c'est comme une file de poussins&nbsp;: un premier ouvre la voie, les voisins rejoignent, et à 200 on va chercher les graines&nbsp;<em>directement chez le producteur</em>. Pas de détour par le supermarché.</p>
+    </div>
+
+    <figure class="poussins-figure reveal">
+      <!-- Image réelle : remplace assets/poussins.png quand tu l'as re-uploadée -->
+      <img src="assets/poussins.png" alt="File de poussins se rendant à la boutique Granétaille — Semences et Céréales"
+           class="poussins-img"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+
+      <!-- Fallback SVG inline : petit poussin à casquette rouge, visible tant que l'image n'est pas dans /assets/ -->
+      <div class="poussins-fallback" role="img" aria-label="Illustration du poussin PRIXY">
+        <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" class="poussin-svg">
+          <!-- ciel + colline -->
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#DDEAF7"/>
+              <stop offset="100%" stop-color="#F6F1E7"/>
+            </linearGradient>
+            <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#B7D89A"/>
+              <stop offset="100%" stop-color="#8CBE6A"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="220" fill="url(#sky)"/>
+          <path d="M -20 160 Q 80 100 160 145 T 340 150 L 340 220 L -20 220 Z" fill="url(#hill)"/>
+          <path d="M -20 175 Q 100 145 200 170 T 340 165 L 340 220 L -20 220 Z" fill="#7BAF5A" opacity=".85"/>
+
+          <!-- Sentier -->
+          <path d="M 40 210 Q 120 190 200 195 T 300 180" fill="none" stroke="#C9A876" stroke-width="14" stroke-linecap="round" opacity=".6"/>
+
+          <!-- Petits poussins qui suivent, en fond -->
+          <g class="ps-follow ps-f-1">
+            <ellipse cx="55" cy="188" rx="10" ry="8.5" fill="#F7C948"/>
+            <circle cx="55" cy="178" r="7" fill="#F7C948"/>
+            <circle cx="57" cy="177" r="1.2" fill="#14203D"/>
+            <path d="M 60 180 l 3 -.5 l -3 1.3 z" fill="#EA8B22"/>
+          </g>
+          <g class="ps-follow ps-f-2">
+            <ellipse cx="80" cy="192" rx="11" ry="9" fill="#F7C948"/>
+            <circle cx="80" cy="182" r="7.5" fill="#F7C948"/>
+            <circle cx="82" cy="181" r="1.3" fill="#14203D"/>
+            <path d="M 85 184 l 3 -.5 l -3 1.3 z" fill="#EA8B22"/>
+          </g>
+          <g class="ps-follow ps-f-3">
+            <ellipse cx="108" cy="195" rx="12" ry="10" fill="#F7C948"/>
+            <circle cx="108" cy="184" r="8" fill="#F7C948"/>
+            <circle cx="111" cy="183" r="1.4" fill="#14203D"/>
+            <path d="M 114 186 l 3.5 -.5 l -3.5 1.4 z" fill="#EA8B22"/>
+          </g>
+          <g class="ps-follow ps-f-4">
+            <ellipse cx="140" cy="198" rx="13" ry="10.5" fill="#F7C948"/>
+            <circle cx="140" cy="186" r="8.5" fill="#F7C948"/>
+            <circle cx="143" cy="185" r="1.5" fill="#14203D"/>
+            <path d="M 146 188 l 4 -.5 l -4 1.5 z" fill="#EA8B22"/>
+          </g>
+
+          <!-- Le chef poussin à casquette rouge, plus grand, devant -->
+          <g class="ps-leader">
+            <!-- ombre au sol -->
+            <ellipse cx="220" cy="207" rx="26" ry="4" fill="#14203D" opacity=".12"/>
+            <!-- corps -->
+            <ellipse cx="220" cy="188" rx="22" ry="18" fill="#F7C948"/>
+            <!-- aile -->
+            <path d="M 205 188 q 8 -6 20 -4 q -6 8 -16 10 z" fill="#EFB420"/>
+            <!-- pattes -->
+            <line x1="212" y1="205" x2="210" y2="212" stroke="#EA8B22" stroke-width="2" stroke-linecap="round"/>
+            <line x1="226" y1="205" x2="228" y2="212" stroke="#EA8B22" stroke-width="2" stroke-linecap="round"/>
+            <!-- tête -->
+            <circle cx="220" cy="168" r="15" fill="#F7C948"/>
+            <!-- joues -->
+            <circle cx="212" cy="172" r="2.5" fill="#F09FA7" opacity=".55"/>
+            <circle cx="228" cy="172" r="2.5" fill="#F09FA7" opacity=".55"/>
+            <!-- œil -->
+            <circle cx="225" cy="166" r="2.2" fill="#14203D"/>
+            <circle cx="225.7" cy="165.3" r=".7" fill="#fff"/>
+            <!-- bec -->
+            <path d="M 232 170 l 7 -1 l -7 3 z" fill="#EA8B22"/>
+            <!-- casquette rouge -->
+            <path d="M 208 160 q 12 -14 26 -2 l -4 3 q -6 -5 -14 -1 z" fill="#C0392B"/>
+            <path d="M 232 158 q 10 -3 12 5 l -14 -1 z" fill="#C0392B"/>
+            <ellipse cx="220" cy="160" rx="14" ry="2" fill="#96271E"/>
+          </g>
+
+          <!-- Enseigne "SEMENCES · CÉRÉALES" -->
+          <g class="ps-sign">
+            <rect x="255" y="70" width="60" height="34" rx="4" fill="#FBF7EE" stroke="#14203D" stroke-width="1.5"/>
+            <text x="285" y="86" text-anchor="middle" font-family="'Archivo Black', Impact, sans-serif" font-size="9" fill="#C0392B">GRANÉTAILLE</text>
+            <text x="285" y="98" text-anchor="middle" font-family="'Inter', sans-serif" font-size="6" fill="#14203D" letter-spacing=".08em">SEMENCES · CÉRÉALES</text>
+            <line x1="270" y1="70" x2="270" y2="65" stroke="#14203D" stroke-width="1.2"/>
+            <line x1="300" y1="70" x2="300" y2="65" stroke="#14203D" stroke-width="1.2"/>
+          </g>
+        </svg>
+      </div>
+
+      <figcaption class="poussins-caption text-helper">
+        <span class="poussins-quote">« Le premier voisin ouvre la commande. Les 199 autres n'ont plus qu'à suivre. »</span>
+      </figcaption>
+    </figure>
+
+    <div class="poussins-stats reveal">
+      <div class="poussins-stat">
+        <span class="poussins-stat-n"><span data-count-to="200" data-count-suffix="">0</span></span>
+        <span class="poussins-stat-l">voisins par commande</span>
+      </div>
+      <div class="poussins-stat">
+        <span class="poussins-stat-n">1</span>
+        <span class="poussins-stat-l">seul intermédiaire</span>
+      </div>
+      <div class="poussins-stat">
+        <span class="poussins-stat-n"><span data-count-to="50" data-count-suffix=" %">0</span></span>
+        <span class="poussins-stat-l">d'économie moyenne</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1476,6 +1702,7 @@ body.preloading{ overflow:hidden; }
   <!-- Méga mots empilés — visible mobile uniquement, masqués en desktop -->
   <div class="foot-mega-stack" style="max-width:var(--container-max); margin:0 auto 28px;">
     <a href="#waitlist" class="foot-mega">Waitlist</a>
+    <a href="#poussins" class="foot-mega">Poussin</a>
     <a href="#how" class="foot-mega">Comment</a>
     <a href="#faq" class="foot-mega">FAQ</a>
     <a href="#feedback" class="foot-mega">Contact</a>
